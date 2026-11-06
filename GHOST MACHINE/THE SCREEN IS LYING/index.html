@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE SCREEN IS LYING</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+
+        :root {
+            --bg: #08090d;
+            --cyan: #75fff0;
+            --purple: #a78bfa;
+            --text: #f2f4ff;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Space Mono', monospace;
+            overflow: hidden;
+        }
+
+        #canvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            cursor: crosshair;
+        }
+
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 20px 25px;
+            pointer-events: none;
+        }
+
+        .logo {
+            font: 800 15px 'Syne', sans-serif;
+            letter-spacing: 2px;
+        }
+
+        .logo span {
+            color: var(--cyan);
+        }
+
+        .status {
+            color: #8d96a9;
+            font-size: 10px;
+            letter-spacing: 1px;
+        }
+
+        .hud {
+            position: fixed;
+            z-index: 5;
+            left: 25px;
+            bottom: 25px;
+            pointer-events: none;
+        }
+
+        .hud h1 {
+            font: 800 clamp(25px, 4vw, 48px) 'Syne', sans-serif;
+            margin: 0 0 8px;
+            letter-spacing: -2px;
+        }
+
+        .hud p {
+            color: #9ba5b8;
+            font-size: 11px;
+            line-height: 1.8;
+            margin: 0;
+        }
+
+        .controls {
+            position: fixed;
+            right: 25px;
+            bottom: 25px;
+            z-index: 6;
+            display: flex;
+            gap: 8px;
+        }
+
+        button {
+            color: var(--text);
+            background: #151923dd;
+            border: 1px solid #353c4b;
+            border-radius: 8px;
+            padding: 12px 15px;
+            font: 11px 'Space Mono', monospace;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        button:hover {
+            background: #252e3d;
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+
+        #toast {
+            position: fixed;
+            top: 78px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            padding: 10px 16px;
+            border: 1px solid #75fff055;
+            border-radius: 8px;
+            background: #0b1719eF;
+            color: var(--cyan);
+            font-size: 11px;
+            opacity: 0;
+            transition: opacity .3s;
+            pointer-events: none;
+            text-align: center;
+            max-width: 90vw;
+        }
+
+        #toast.show {
+            opacity: 1;
+        }
+
+        #hint {
+            position: fixed;
+            z-index: 5;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #d3d7e5;
+            font-size: 10px;
+            letter-spacing: 2px;
+            pointer-events: none;
+            opacity: .7;
+        }
+
+        @media(max-width:600px) {
+            .topbar {
+                padding: 15px;
+            }
+
+            .status {
+                font-size: 8px;
+                text-align: right;
+            }
+
+            .hud {
+                left: 15px;
+                bottom: 80px;
+            }
+
+            .hud h1 {
+                font-size: 28px;
+            }
+
+            .hud p {
+                font-size: 9px;
+            }
+
+            .controls {
+                right: 15px;
+                bottom: 15px;
+            }
+
+            button {
+                padding: 11px;
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+
+    <div class="topbar">
+        <div class="logo">THE SCREEN <span>IS LYING.</span></div>
+        <div class="status" id="status">REALITY: 001 // STABLE</div>
+    </div>
+
+    <div id="toast"></div>
+    <div id="hint">CLICK THE OBJECT THAT DOESN'T BELONG</div>
+
+    <div class="hud">
+        <h1 id="worldTitle">YOUR DESKTOP.</h1>
+        <p id="worldDesc">
+            Everything is normal.<br>
+            Or at least, it looks normal.
+        </p>
+    </div>
+
+    <div class="controls">
+        <button id="backBtn">↶ BACK</button>
+        <button id="resetBtn">↻ RESET</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+
+        let W, H, dpr;
+        let mouse = { x: -1000, y: -1000 };
+        let world = 0;
+        let history = [];
+        let time = 0;
+        let transition = 0;
+        let targetWorld = 0;
+        let toastTimer;
+
+        const worlds = [
+            {
+                name: "YOUR DESKTOP.",
+                desc: "Everything is normal.<br>Or at least, it looks normal.",
+                status: "REALITY: 001 // STABLE",
+                color: "#75fff0",
+                objects: [
+                    { x: .25, y: .42, size: 35, type: "folder", label: "Documents", next: 1 },
+                    { x: .50, y: .53, size: 30, type: "orb", label: "Unknown file", next: 2 },
+                    { x: .75, y: .38, size: 34, type: "window", label: "System", next: 3 }
+                ]
+            },
+            {
+                name: "INSIDE THE FOLDER.",
+                desc: "This folder is larger on the inside.<br>Something is watching your cursor.",
+                status: "REALITY: 002 // BREACH DETECTED",
+                color: "#a78bfa",
+                objects: [
+                    { x: .30, y: .42, size: 45, type: "orb", label: "The Observer", next: 4 },
+                    { x: .68, y: .57, size: 35, type: "ring", label: "Exit 01", next: 0 }
+                ]
+            },
+            {
+                name: "THE UNKNOWN FILE.",
+                desc: "There is no file here.<br>Only a hole in the screen.",
+                status: "REALITY: 003 // DEPTH UNKNOWN",
+                color: "#ff7aa8",
+                objects: [
+                    { x: .50, y: .48, size: 65, type: "portal", label: "Go deeper", next: 4 },
+                    { x: .25, y: .72, size: 25, type: "orb", label: "Return", next: 0 }
+                ]
+            },
+            {
+                name: "SYSTEM // NOT FOUND.",
+                desc: "Your computer has a room<br>that it never told you about.",
+                status: "REALITY: 004 // IMPOSSIBLE",
+                color: "#ffcf70",
+                objects: [
+                    { x: .50, y: .40, size: 55, type: "window", label: "Forbidden window", next: 4 },
+                    { x: .78, y: .68, size: 30, type: "ring", label: "Return", next: 0 }
+                ]
+            },
+            {
+                name: "YOU FOUND THE OUTSIDE.",
+                desc: "You thought you were looking at a screen.<br>What if the screen was looking at you?",
+                status: "REALITY: 005 // NO EXIT FOUND",
+                color: "#ffffff",
+                objects: [
+                    { x: .50, y: .50, size: 80, type: "portal", label: "Look closer", next: 5 },
+                    { x: .20, y: .30, size: 25, type: "orb", label: "Memory", next: 1 },
+                    { x: .80, y: .70, size: 25, type: "orb", label: "Origin", next: 0 }
+                ]
+            },
+            {
+                name: "THE SCREEN REMEMBERS.",
+                desc: "You have been here before.<br>Even if you don't remember it.",
+                status: "REALITY: 006 // MEMORY LOOP",
+                color: "#75fff0",
+                objects: [
+                    { x: .50, y: .50, size: 70, type: "ring", label: "Return to origin", next: 0 },
+                    { x: .25, y: .65, size: 25, type: "orb", label: "Go back", next: 4 }
+                ]
+            }
+        ];
+
+        let particles = [];
+        for (let i = 0; i < 170; i++) {
+            particles.push({
+                x: Math.random(),
+                y: Math.random(),
+                s: Math.random() * 1.8 + .3,
+                a: Math.random() * Math.PI * 2,
+                speed: Math.random() * .25 + .05
+            });
+        }
+
+        function resize() {
+            dpr = Math.min(window.devicePixelRatio || 1, 2);
+            W = window.innerWidth;
+            H = window.innerHeight;
+            canvas.width = W * dpr;
+            canvas.height = H * dpr;
+            canvas.style.width = W + "px";
+            canvas.style.height = H + "px";
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        window.addEventListener("resize", resize);
+        resize();
+
+        function showToast(text) {
+            const el = document.getElementById("toast");
+            el.textContent = text;
+            el.classList.add("show");
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => el.classList.remove("show"), 2200);
+        }
+
+        function updateUI() {
+            const w = worlds[world];
+            document.getElementById("worldTitle").textContent = w.name;
+            document.getElementById("worldDesc").innerHTML = w.desc;
+            document.getElementById("status").textContent = w.status;
+            document.getElementById("hint").style.display = world === 0 ? "block" : "none";
+        }
+
+        function enterWorld(next) {
+            if (next === world) {
+                showToast("YOU ARE ALREADY HERE.");
+                return;
+            }
+            history.push(world);
+            targetWorld = next;
+            transition = 1;
+            world = next;
+            updateUI();
+            showToast("REALITY SHIFT DETECTED");
+        }
+
+        function back() {
+            if (history.length) {
+                world = history.pop();
+                updateUI();
+                showToast("RETURNING TO PREVIOUS REALITY");
+            } else {
+                showToast("YOU ARE AT THE ORIGIN.");
+            }
+        }
+
+        document.getElementById("backBtn").addEventListener("click", back);
+
+        document.getElementById("resetBtn").addEventListener("click", () => {
+            world = 0;
+            history = [];
+            transition = 1;
+            updateUI();
+            showToast("REALITY RESTORED.");
+        });
+
+        window.addEventListener("keydown", e => {
+            if (e.key === "Escape" || e.key === "Backspace") back();
+        });
+
+        canvas.addEventListener("mousemove", e => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
+
+        canvas.addEventListener("mouseleave", () => {
+            mouse.x = -1000;
+            mouse.y = -1000;
+        });
+
+        function drawBackground() {
+            const w = worlds[world];
+            const grad = ctx.createRadialGradient(
+                W * .5, H * .5, 0,
+                W * .5, H * .5, Math.max(W, H) * .8
+            );
+            grad.addColorStop(0, world === 0 ? "#171c2a" : "#151020");
+            grad.addColorStop(1, "#05060a");
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, W, H);
+
+            // Perspective grid
+            ctx.save();
+            ctx.strokeStyle = w.color;
+            ctx.globalAlpha = .10;
+            ctx.lineWidth = 1;
+
+            const horizon = H * .53;
+            for (let i = -15; i <= 15; i++) {
+                ctx.beginPath();
+                ctx.moveTo(W / 2 + i * 15, horizon);
+                ctx.lineTo(W / 2 + i * W * .12, H);
+                ctx.stroke();
+            }
+
+            for (let i = 0; i < 16; i++) {
+                const p = i / 16;
+                const y = horizon + Math.pow(p, 2) * H * .55;
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(W, y);
+                ctx.stroke();
+            }
+            ctx.restore();
+
+            // Floating particles react to mouse
+            for (const p of particles) {
+                let x = p.x * W;
+                let y = p.y * H;
+                const dx = x - mouse.x;
+                const dy = y - mouse.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < 150 && dist > 0) {
+                    x += dx / dist * (150 - dist) * .25;
+                    y += dy / dist * (150 - dist) * .25;
+                }
+
+                p.a += .003 * p.speed;
+                x += Math.sin(p.a + time * .2) * 2;
+                y += Math.cos(p.a + time * .15) * 2;
+
+                ctx.globalAlpha = .2 + .4 * Math.sin(time * .03 + p.a);
+                ctx.fillStyle = w.color;
+                ctx.beginPath();
+                ctx.arc(x, y, p.s, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        function drawPortal(obj, index) {
+            const w = worlds[world];
+            const x = obj.x * W;
+            const y = obj.y * H;
+            const size = obj.size * Math.min(W / 900, H / 700, 1.2) + 5;
+            const dx = mouse.x - x;
+            const dy = mouse.y - y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const hover = dist < size * 1.8;
+            const pulse = Math.sin(time * .035 + index * 2) * 4;
+            const r = size + pulse + (hover ? 7 : 0);
+
+            ctx.save();
+            ctx.translate(x, y);
+
+            // Outer glow
+            ctx.shadowBlur = hover ? 45 : 22;
+            ctx.shadowColor = w.color;
+            ctx.strokeStyle = w.color;
+            ctx.lineWidth = hover ? 2.5 : 1.3;
+            ctx.globalAlpha = .75;
+
+            if (obj.type === "folder") {
+                ctx.beginPath();
+                ctx.roundRect(-r, -r * .65, r * 2, r * 1.3, 5);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(-r * .7, -r * .65);
+                ctx.lineTo(-r * .7, -r);
+                ctx.lineTo(0, -r);
+                ctx.lineTo(r * .15, -r * .65);
+                ctx.stroke();
+            } else if (obj.type === "window") {
+                ctx.strokeRect(-r, -r * .7, r * 2, r * 1.4);
+                ctx.beginPath();
+                ctx.moveTo(-r, -r * .25);
+                ctx.lineTo(r, -r * .25);
+                ctx.stroke();
+                for (let i = 0; i < 3; i++) {
+                    ctx.beginPath();
+                    ctx.arc(-r * .7 + i * r * .2, -r * .48, 1.5, 0, Math.PI * 2);
+                    ctx.fillStyle = w.color;
+                    ctx.fill();
+                }
+            } else if (obj.type === "ring") {
+                ctx.rotate(time * .004);
+                for (let i = 0; i < 3; i++) {
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, r, r * (.45 + i * .15), i * .5, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+            } else if (obj.type === "portal") {
+                for (let i = 0; i < 5; i++) {
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, r * (1 - i * .13), r * (1 - i * .13) * .65,
+                        time * .004 * (i % 2 ? 1 : -1), 0, Math.PI * 2);
+                    ctx.globalAlpha = .8 - i * .12;
+                    ctx.stroke();
+                }
+                ctx.globalAlpha = .8;
+                ctx.fillStyle = w.color;
+                ctx.globalAlpha = .13;
+                ctx.beginPath();
+                ctx.arc(0, 0, r * .6, 0, Math.PI * 2);
+                ctx.fill();
+            } else {
+                const g = ctx.createRadialGradient(-r * .3, -r * .3, 1, 0, 0, r);
+                g.addColorStop(0, "#ffffff");
+                g.addColorStop(.2, w.color);
+                g.addColorStop(1, "#161528");
+                ctx.globalAlpha = 1;
+                ctx.fillStyle = g;
+                ctx.beginPath();
+                ctx.arc(0, 0, r * .7, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = w.color;
+                ctx.globalAlpha = .6;
+                ctx.beginPath();
+                ctx.arc(0, 0, r, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+
+            // Cursor connection
+            if (hover) {
+                ctx.globalAlpha = .6;
+                ctx.setLineDash([3, 6]);
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(dx, dy);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            ctx.restore();
+
+            // Label
+            ctx.font = "10px 'Space Mono'";
+            ctx.textAlign = "center";
+            ctx.fillStyle = hover ? "#ffffff" : w.color;
+            ctx.globalAlpha = hover ? 1 : .7;
+            ctx.fillText(hover ? "↳ " + obj.label.toUpperCase() : obj.label, x, y + size + 25);
+            ctx.globalAlpha = 1;
+
+            if (hover) {
+                ctx.font = "9px 'Space Mono'";
+                ctx.fillStyle = "#aeb7c8";
+                ctx.fillText("CLICK TO ENTER", x, y + size + 40);
+            }
+
+            return { x, y, r: size * 1.8, obj };
+        }
+
+        function drawReality() {
+            const w = worlds[world];
+            const hotspots = [];
+
+            // Reality boundary
+            ctx.save();
+            ctx.strokeStyle = w.color;
+            ctx.globalAlpha = .16;
+            ctx.lineWidth = 1;
+            ctx.strokeRect(W * .06, H * .13, W * .88, H * .75);
+            ctx.restore();
+
+            w.objects.forEach((obj, i) => {
+                hotspots.push(drawPortal(obj, i));
+            });
+
+            // A subtle false cursor echo
+            if (world > 0 && mouse.x > 0) {
+                ctx.save();
+                ctx.globalAlpha = .2;
+                ctx.strokeStyle = w.color;
+                ctx.beginPath();
+                ctx.arc(mouse.x + 18, mouse.y - 12, 8 + Math.sin(time * .1) * 3, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            return hotspots;
+        }
+
+        function draw() {
+            time++;
+            drawBackground();
+            const hotspots = drawReality();
+
+            if (transition > 0) {
+                ctx.fillStyle = `rgba(255,255,255,${transition * .12})`;
+                ctx.fillRect(0, 0, W, H);
+                transition *= .92;
+                if (transition < .01) transition = 0;
+            }
+
+            requestAnimationFrame(draw);
+        }
+
+        canvas.addEventListener("click", e => {
+            const x = e.clientX;
+            const y = e.clientY;
+            const objects = worlds[world].objects;
+
+            for (const obj of objects) {
+                const ox = obj.x * W;
+                const oy = obj.y * H;
+                const size = obj.size * Math.min(W / 900, H / 700, 1.2) + 5;
+                const dist = Math.hypot(x - ox, y - oy);
+
+                if (dist < size * 1.8) {
+                    enterWorld(obj.next);
+                    return;
+                }
+            }
+
+            showToast("NOTHING HERE. KEEP LOOKING.");
+        });
+
+        updateUI();
+        draw();
+    </script>
+</body>
+
+</html>

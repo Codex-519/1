@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>UNIVERSE EXPLORER | 3D COSMOS</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --cyan: #73eaff;
+            --blue: #758aff;
+            --muted: #91a5cc;
+            --panel: rgba(7, 12, 31, .82);
+            --border: rgba(133, 166, 255, .2)
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html,
+        body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #02030b;
+            color: #eff4ff;
+            font-family: Inter, sans-serif
+        }
+
+        button,
+        input {
+            font: inherit
+        }
+
+        button {
+            cursor: pointer;
+            color: inherit
+        }
+
+        #space {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: block
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background: radial-gradient(ellipse at center, transparent 25%, #02030b36 70%, #02030be8 120%)
+        }
+
+        header {
+            position: fixed;
+            z-index: 5;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 75px;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(#030615e8, transparent);
+            border-bottom: 1px solid #9bb5ff13
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #73eaff80;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            color: var(--cyan);
+            font-size: 23px;
+            box-shadow: 0 0 26px #53cfff20
+        }
+
+        .brand-name {
+            font: 700 15px Orbitron, sans-serif;
+            letter-spacing: 2.5px
+        }
+
+        .brand-sub {
+            font-size: 8px;
+            letter-spacing: 2px;
+            color: var(--muted);
+            margin-top: 5px
+        }
+
+        .header-right {
+            display: flex;
+            gap: 8px;
+            align-items: center
+        }
+
+        .pill {
+            padding: 9px 12px;
+            border: 1px solid var(--border);
+            border-radius: 25px;
+            background: #101a3588;
+            font-size: 9px;
+            letter-spacing: 1px
+        }
+
+        .live {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: #7dffb6;
+            border-radius: 50%;
+            margin-right: 7px;
+            box-shadow: 0 0 9px #7dffb6
+        }
+
+        .panel {
+            position: fixed;
+            z-index: 4;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            box-shadow: 0 15px 50px #0004
+        }
+
+        .left {
+            left: 18px;
+            top: 94px;
+            bottom: 83px;
+            width: 232px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column
+        }
+
+        .right {
+            right: 18px;
+            top: 94px;
+            width: 255px;
+            padding: 17px
+        }
+
+        .eyebrow {
+            font-size: 9px;
+            letter-spacing: 1.8px;
+            color: var(--cyan);
+            font-weight: 700
+        }
+
+        .heading {
+            font: 600 17px Orbitron, sans-serif;
+            margin: 10px 0 6px
+        }
+
+        .muted {
+            font-size: 10px;
+            color: var(--muted);
+            line-height: 1.6
+        }
+
+        .search {
+            width: 100%;
+            margin: 15px 0 12px;
+            padding: 11px;
+            border-radius: 9px;
+            border: 1px solid var(--border);
+            background: #030918;
+            color: #fff;
+            outline: none;
+            font-size: 10px
+        }
+
+        .search:focus {
+            border-color: #73eaff
+        }
+
+        .systems {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            overflow: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #334b78 transparent
+        }
+
+        .system {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 8px;
+            border: 1px solid transparent;
+            background: transparent;
+            text-align: left;
+            border-radius: 10px
+        }
+
+        .system:hover {
+            background: #8bb5ff0c
+        }
+
+        .system.active {
+            background: #638fff1a;
+            border-color: #83b5ff42
+        }
+
+        .system-icon {
+            width: 27px;
+            height: 27px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            box-shadow: 0 0 17px currentColor
+        }
+
+        .system-name {
+            font-size: 10px;
+            font-weight: 600
+        }
+
+        .system-type {
+            font-size: 9px;
+            color: var(--muted);
+            margin-top: 4px
+        }
+
+        .arrow {
+            margin-left: auto;
+            color: #7487ad
+        }
+
+        .footer {
+            margin-top: auto;
+            padding-top: 13px;
+            border-top: 1px solid #a8baff17
+        }
+
+        .setting {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            font-size: 10px;
+            margin-top: 12px
+        }
+
+        input[type=range] {
+            accent-color: var(--cyan);
+            width: 100%
+        }
+
+        input[type=checkbox] {
+            accent-color: var(--cyan)
+        }
+
+        .info-preview {
+            height: 100px;
+            display: grid;
+            place-items: center;
+            position: relative;
+            overflow: hidden
+        }
+
+        .preview-orbit {
+            position: absolute;
+            width: 135px;
+            height: 44px;
+            border: 1px solid #83baff48;
+            border-radius: 50%;
+            transform: rotate(-20deg)
+        }
+
+        .preview-star {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 25%, #fff, #9bf8ff 20%, #518cff 55%, #171342 100%);
+            box-shadow: 0 0 32px #65baff60
+        }
+
+        .desc {
+            font-size: 10px;
+            line-height: 1.7;
+            color: #a9b9d8;
+            margin-top: 5px;
+            min-height: 52px
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 7px;
+            margin-top: 13px
+        }
+
+        .stat {
+            padding: 10px 8px;
+            border: 1px solid #a9c1ff14;
+            background: #ffffff06;
+            border-radius: 9px;
+            min-width: 0
+        }
+
+        .stat-label {
+            font-size: 8px;
+            color: var(--muted);
+            margin-bottom: 6px
+        }
+
+        .stat-value {
+            font: 11px Orbitron, sans-serif;
+            overflow-wrap: anywhere
+        }
+
+        .actions {
+            display: flex;
+            gap: 7px;
+            margin-top: 13px
+        }
+
+        .action {
+            flex: 1;
+            padding: 10px 5px;
+            border-radius: 9px;
+            background: #4b7eff19;
+            border: 1px solid #7daaff40;
+            font-size: 9px
+        }
+
+        .action:hover {
+            border-color: #73eaff
+        }
+
+        .bottom {
+            position: fixed;
+            z-index: 4;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(510px, calc(100% - 510px));
+            min-width: 300px;
+            padding: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 4px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            background: #061126e8;
+            backdrop-filter: blur(16px)
+        }
+
+        .tool {
+            min-width: 39px;
+            padding: 7px 5px;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            background: transparent;
+            color: #bdcde9;
+            font-size: 14px
+        }
+
+        .tool:hover,
+        .tool.active {
+            color: var(--cyan);
+            background: #8baeff14;
+            border-color: #86b1ff35
+        }
+
+        .tool span {
+            display: block;
+            font-size: 7px;
+            letter-spacing: .4px;
+            margin-top: 4px
+        }
+
+        .hint {
+            position: fixed;
+            z-index: 3;
+            bottom: 27px;
+            left: 265px;
+            font-size: 9px;
+            color: #96a8cb77;
+            pointer-events: none
+        }
+
+        .toast {
+            position: fixed;
+            z-index: 10;
+            top: 85px;
+            left: 50%;
+            transform: translate(-50%, -8px);
+            opacity: 0;
+            pointer-events: none;
+            background: #09152eef;
+            border: 1px solid #7bb3ff55;
+            border-radius: 10px;
+            padding: 11px 15px;
+            font-size: 10px;
+            color: #dcf6ff;
+            transition: .25s
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translate(-50%, 0)
+        }
+
+        #loading {
+            position: fixed;
+            z-index: 20;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            background: #02030b;
+            transition: opacity .7s
+        }
+
+        .loader {
+            text-align: center
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 18px;
+            border: 1px solid var(--cyan);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            box-shadow: 0 0 24px #73eaff20
+        }
+
+        .loader-title {
+            font: 12px Orbitron, sans-serif;
+            letter-spacing: 4px
+        }
+
+        .loader-sub {
+            font-size: 10px;
+            color: var(--muted);
+            margin-top: 10px
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        @media(max-width:900px) {
+            .left {
+                left: 10px;
+                width: 190px
+            }
+
+            .right {
+                right: 10px;
+                width: 220px;
+                padding: 13px
+            }
+
+            .bottom {
+                width: 350px
+            }
+
+            .hint {
+                display: none
+            }
+        }
+
+        @media(max-width:620px) {
+            header {
+                height: 60px;
+                padding: 0 11px
+            }
+
+            .logo {
+                width: 32px;
+                height: 32px
+            }
+
+            .brand-name {
+                font-size: 12px;
+                letter-spacing: 1.5px
+            }
+
+            .brand-sub {
+                font-size: 7px;
+                letter-spacing: 1px
+            }
+
+            .pill {
+                padding: 7px;
+                font-size: 7px
+            }
+
+            .header-right {
+                gap: 4px
+            }
+
+            .left {
+                left: 7px;
+                right: 7px;
+                bottom: 65px;
+                top: auto;
+                width: auto;
+                height: 75px;
+                padding: 5px;
+                border-radius: 12px
+            }
+
+            .left>.eyebrow,
+            .left>.heading,
+            .left>.muted,
+            .search,
+            .footer {
+                display: none
+            }
+
+            .systems {
+                height: 100%;
+                flex-direction: row;
+                overflow-x: auto;
+                overflow-y: hidden
+            }
+
+            .system {
+                flex: 0 0 auto;
+                flex-direction: column;
+                justify-content: center;
+                gap: 4px;
+                padding: 4px 9px;
+                min-width: 66px
+            }
+
+            .system-icon {
+                width: 23px;
+                height: 23px
+            }
+
+            .system-name {
+                font-size: 9px
+            }
+
+            .system-type,
+            .arrow {
+                display: none
+            }
+
+            .right {
+                right: 7px;
+                top: 70px;
+                width: 158px;
+                padding: 10px;
+                border-radius: 12px
+            }
+
+            .heading {
+                font-size: 14px;
+                margin: 7px 0 4px
+            }
+
+            .info-preview {
+                height: 65px
+            }
+
+            .preview-star {
+                width: 40px;
+                height: 40px
+            }
+
+            .preview-orbit {
+                width: 85px;
+                height: 28px
+            }
+
+            .desc {
+                font-size: 9px;
+                line-height: 1.5;
+                min-height: 52px
+            }
+
+            .stats {
+                gap: 5px;
+                margin-top: 7px
+            }
+
+            .stat {
+                padding: 7px
+            }
+
+            .stat-label {
+                font-size: 7px;
+                margin-bottom: 5px
+            }
+
+            .stat-value {
+                font-size: 9px
+            }
+
+            .actions {
+                flex-direction: column;
+                margin-top: 8px;
+                gap: 5px
+            }
+
+            .action {
+                padding: 8px 4px;
+                font-size: 8px
+            }
+
+            .bottom {
+                left: 7px;
+                right: 7px;
+                bottom: 7px;
+                transform: none;
+                width: auto;
+                min-width: 0;
+                padding: 5px;
+                gap: 2px
+            }
+
+            .tool {
+                min-width: 29px;
+                font-size: 12px;
+                padding: 6px 3px
+            }
+
+            .tool span {
+                font-size: 6px
+            }
+
+            .toast {
+                top: 64px;
+                max-width: 90vw;
+                text-align: center
+            }
+        }
+
+        @media(max-width:350px) {
+            .right {
+                width: 140px
+            }
+
+            .brand-sub {
+                display: none
+            }
+
+            .pill {
+                font-size: 6px
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="space"></canvas>
+    <div class="overlay"></div>
+
+    <div id="loading">
+        <div class="loader">
+            <div class="spinner"></div>
+            <div class="loader-title">ENTERING THE COSMOS</div>
+            <div class="loader-sub">Mapping distant star systems...</div>
+        </div>
+    </div>
+
+    <header>
+        <div class="brand">
+            <div class="logo">✦</div>
+            <div>
+                <div class="brand-name">UNIVERSE EXPLORER</div>
+                <div class="brand-sub">INTERACTIVE DEEP SPACE</div>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="pill"><span class="live"></span>SIMULATION ONLINE</div>
+            <div class="pill" id="clock">00:00:00</div>
+        </div>
+    </header>
+
+    <aside class="panel left">
+        <div class="eyebrow">COSMIC NAVIGATION</div>
+        <div class="heading">Star Systems</div>
+        <div class="muted">Select a system to explore the cosmos.</div>
+        <input id="search" class="search" placeholder="⌕  Search star systems...">
+        <div class="systems" id="systems"></div>
+        <div class="footer">
+            <div class="eyebrow">SIMULATION SETTINGS</div>
+            <div class="setting"><span>Rotation speed</span><span id="speedText">1.0×</span></div>
+            <input id="speed" type="range" min="0" max="3" step=".1" value="1">
+            <div class="setting"><span>Auto rotate</span><input id="auto" type="checkbox" checked></div>
+        </div>
+    </aside>
+
+    <aside class="panel right">
+        <div class="eyebrow">COSMIC DATABASE</div>
+        <div class="heading" id="objectName">Milky Way</div>
+        <div class="muted" id="objectType">Barred spiral galaxy</div>
+        <div class="info-preview">
+            <div class="preview-orbit"></div>
+            <div class="preview-star" id="preview"></div>
+        </div>
+        <div class="desc" id="description">Explore a galaxy filled with stars.</div>
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-label">OBJECT TYPE</div>
+                <div class="stat-value" id="typeValue">GALAXY</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">STAR COUNT</div>
+                <div class="stat-value" id="starValue">100B+</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">DISTANCE</div>
+                <div class="stat-value" id="distanceValue">—</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">SYSTEM ID</div>
+                <div class="stat-value" id="idValue">MW-001</div>
+            </div>
+        </div>
+        <div class="actions">
+            <button class="action" id="focus">◎ FOCUS OBJECT</button>
+            <button class="action" id="details">⌘ DETAILS</button>
+        </div>
+    </aside>
+
+    <div class="hint">DRAG TO ROTATE · SCROLL TO ZOOM · CLICK AN OBJECT</div>
+
+    <nav class="bottom">
+        <button class="tool" id="home">⌂<span>RESET</span></button>
+        <button class="tool active" id="rotate">⟳<span>ROTATE</span></button>
+        <button class="tool active" id="starsToggle">✦<span>STARS</span></button>
+        <button class="tool active" id="nebulaToggle">◉<span>NEBULA</span></button>
+        <button class="tool" id="zoomIn">＋<span>ZOOM IN</span></button>
+        <button class="tool" id="zoomOut">−<span>ZOOM OUT</span></button>
+    </nav>
+    <div class="toast" id="toast"></div>
+
+    <script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"}}
+</script>
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        const $ = id => document.getElementById(id);
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x02030b);
+        scene.fog = new THREE.FogExp2(0x02030b, .00028);
+
+        const camera = new THREE.PerspectiveCamera(55, innerWidth / innerHeight, .1, 3000);
+        camera.position.set(0, 95, 170);
+        const renderer = new THREE.WebGLRenderer({ canvas: $('space'), antialias: true });
+        renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+        renderer.setSize(innerWidth, innerHeight);
+        renderer.outputColorSpace = THREE.SRGBColorSpace;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.3;
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = .055;
+        controls.minDistance = 8;
+        controls.maxDistance = 900;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = .35;
+        controls.target.set(0, 0, 0);
+
+        scene.add(new THREE.AmbientLight(0x879bff, 1.25));
+        const keyLight = new THREE.PointLight(0xffffff, 1500, 900, 1.6);
+        keyLight.position.set(0, 0, 0);
+        scene.add(keyLight);
+
+        let selected = null, cameraGoal = null, speed = 1, starsOn = true, nebulaOn = true;
+        let toastTimer;
+        const objects = [];
+        const pickables = [];
+        const systems = [];
+        const raycaster = new THREE.Raycaster();
+        const pointer = new THREE.Vector2();
+
+        function toast(message) {
+            const el = $('toast'); el.textContent = message; el.classList.add('show');
+            clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), 1900);
+        }
+        function seeded(i) { const x = Math.sin(i * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x) }
+
+        // Star field
+        function makeStarField(count, radius, size, opacity) {
+            const pos = new Float32Array(count * 3);
+            for (let i = 0; i < count; i++) {
+                const y = Math.random() * 2 - 1, a = Math.random() * Math.PI * 2;
+                const r = radius * Math.sqrt(1 - y * y);
+                pos[i * 3] = Math.cos(a) * r; pos[i * 3 + 1] = y * radius; pos[i * 3 + 2] = Math.sin(a) * r;
+            }
+            const geo = new THREE.BufferGeometry();
+            geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+            const points = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xd9e7ff, size, transparent: true, opacity, depthWrite: false, sizeAttenuation: true }));
+            scene.add(points); return points;
+        }
+        const starField = makeStarField(18000, 1300, 1.05, .95);
+        const distantStars = makeStarField(7000, 1800, 1.6, .7);
+
+        // Soft nebula clouds built from luminous points
+        function makeCloud(color, count, spread, opacity, size) {
+            const positions = new Float32Array(count * 3);
+            for (let i = 0; i < count; i++) {
+                positions[i * 3] = (Math.random() - .5) * spread * 2;
+                positions[i * 3 + 1] = (Math.random() - .5) * spread * .5;
+                positions[i * 3 + 2] = (Math.random() - .5) * spread * 2;
+            }
+            const geo = new THREE.BufferGeometry();
+            geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            const mat = new THREE.PointsMaterial({ color, size, transparent: true, opacity, blending: THREE.AdditiveBlending, depthWrite: false });
+            const p = new THREE.Points(geo, mat); scene.add(p); return p;
+        }
+        const nebula1 = makeCloud(0x6937d6, 6500, 430, .11, 4.2);
+        const nebula2 = makeCloud(0x146bd7, 5300, 510, .09, 3.5);
+        const nebula3 = makeCloud(0xe039a8, 2500, 300, .07, 3.2);
+
+        // Procedural spiral galaxy
+        const galaxy = new THREE.Group();
+        scene.add(galaxy);
+        const galaxyCount = 18000;
+        const galaxyPos = new Float32Array(galaxyCount * 3);
+        const galaxyColors = new Float32Array(galaxyCount * 3);
+        const colorInner = new THREE.Color(0xffd4a0);
+        const colorMiddle = new THREE.Color(0x8c7dff);
+        const colorOuter = new THREE.Color(0x3e9fff);
+
+        for (let i = 0; i < galaxyCount; i++) {
+            const t = seeded(i + 3);
+            const radius = Math.sqrt(t) * 82;
+            const arm = Math.floor(seeded(i + 7) * 5);
+            const angle = radius * .105 + arm * (Math.PI * 2 / 5) + (seeded(i + 11) - .5) * .65;
+            galaxyPos[i * 3] = Math.cos(angle) * radius;
+            galaxyPos[i * 3 + 1] = (seeded(i + 13) - .5) * (2.5 + radius * .045);
+            galaxyPos[i * 3 + 2] = Math.sin(angle) * radius;
+            const f = radius / 82;
+            const c = colorInner.clone().lerp(colorMiddle, Math.min(1, f * 1.4)).lerp(colorOuter, Math.max(0, (f - .35) * .8));
+            galaxyColors[i * 3] = c.r; galaxyColors[i * 3 + 1] = c.g; galaxyColors[i * 3 + 2] = c.b;
+        }
+        const galaxyGeo = new THREE.BufferGeometry();
+        galaxyGeo.setAttribute('position', new THREE.BufferAttribute(galaxyPos, 3));
+        galaxyGeo.setAttribute('color', new THREE.BufferAttribute(galaxyColors, 3));
+        const galaxyPoints = new THREE.Points(galaxyGeo, new THREE.PointsMaterial({
+            size: .58, vertexColors: true, transparent: true, opacity: .93, depthWrite: false, blending: THREE.AdditiveBlending
+        }));
+        galaxy.add(galaxyPoints);
+
+        // Bright galactic core
+        const core = new THREE.Mesh(new THREE.SphereGeometry(5.3, 40, 32), new THREE.MeshBasicMaterial({
+            color: 0xffc98a, transparent: true, opacity: .8
+        }));
+        galaxy.add(core);
+        const coreGlow = new THREE.Mesh(new THREE.SphereGeometry(8, 40, 32), new THREE.MeshBasicMaterial({
+            color: 0xff8a49, transparent: true, opacity: .1, side: THREE.BackSide, blending: THREE.AdditiveBlending
+        }));
+        galaxy.add(coreGlow);
+
+        // Central black hole-style accent
+        const blackHole = new THREE.Mesh(new THREE.SphereGeometry(1.25, 32, 24), new THREE.MeshBasicMaterial({ color: 0x02020b }));
+        blackHole.position.set(0, .4, 0); galaxy.add(blackHole);
+
+        // Star systems positioned around the galaxy
+        const systemData = [
+            { name: 'Solar System', type: 'Planetary System', color: 0x67caff, pos: [-25, 2, 10], stars: '1 star', distance: '26,000 ly', id: 'SOL-001', desc: 'Our home system, featuring the Sun, eight planets and countless smaller bodies.', radius: 1.5, planets: 8 },
+            { name: 'Alpha Centauri', type: 'Triple Star System', color: 0xffd7a0, pos: [-12, -1, 21], stars: '3 stars', distance: '4.37 ly', id: 'AC-002', desc: 'The nearest star system to our Solar System, containing Alpha Centauri A and B plus Proxima Centauri.', radius: 1.15, planets: 3 },
+            { name: 'Sirius', type: 'Binary Star System', color: 0x9bdfff, pos: [18, 2, -12], stars: '2 stars', distance: '8.6 ly', id: 'SIR-003', desc: 'A brilliant binary star system dominated by the bright star Sirius A and its white dwarf companion.', radius: 1.2, planets: 2 },
+            { name: 'TRAPPIST-1', type: 'Exoplanet System', color: 0xff927c, pos: [31, -1, 18], stars: '1 star', distance: '39.5 ly', id: 'TRP-004', desc: 'A compact system known for seven Earth-sized planets orbiting a cool red dwarf.', radius: .95, planets: 7 },
+            { name: 'Kepler-452', type: 'Exoplanet System', color: 0xffc982, pos: [-2, 3, -37], stars: '1 star', distance: '1,400 ly', id: 'KPL-005', desc: 'A star known for hosting Kepler-452b, an exoplanet often studied as a possible Earth analogue.', radius: 1.1, planets: 1 },
+            { name: 'Vega', type: 'Main Sequence Star', color: 0x8cbaff, pos: [9, -2, 38], stars: '1 star', distance: '25 ly', id: 'VEG-006', desc: 'A bright blue-white star in the constellation Lyra and one of the best-studied stars in the sky.', radius: 1.3, planets: 0 },
+            { name: 'Betelgeuse', type: 'Red Supergiant', color: 0xff694e, pos: [-39, 4, -12], stars: '1 star', distance: '~550 ly', id: 'BET-007', desc: 'A luminous red supergiant in Orion, enormous in size and nearing a late stage of stellar evolution.', radius: 2.0, planets: 0 },
+            { name: 'Andromeda', type: 'Spiral Galaxy', color: 0xb1b6ff, pos: [-95, 13, -42], stars: '~1 trillion', distance: '2.5M ly', id: 'AND-008', desc: 'The nearest major galaxy to the Milky Way, visible from Earth under dark skies.', radius: 5.4, planets: 0 },
+            { name: 'Pleiades', type: 'Open Star Cluster', color: 0x7dbaff, pos: [56, 7, -55], stars: '1,000+', distance: '~444 ly', id: 'PLE-009', desc: 'A young star cluster also called the Seven Sisters, surrounded by faint blue reflection nebulosity.', radius: 2.1, planets: 0 },
+            { name: 'Crab Nebula', type: 'Supernova Remnant', color: 0xff9dba, pos: [-55, -5, 51], stars: 'Many stars', distance: '~6,500 ly', id: 'CRB-010', desc: 'A supernova remnant containing a rapidly spinning neutron star, studied across the electromagnetic spectrum.', radius: 3.1, planets: 0 }
+        ];
+
+        function createStarSystem(data, index) {
+            const group = new THREE.Group();
+            group.position.set(...data.pos);
+            scene.add(group);
+
+            const starGeo = new THREE.SphereGeometry(data.radius, 32, 24);
+            const starMat = new THREE.MeshBasicMaterial({ color: data.color });
+            const star = new THREE.Mesh(starGeo, starMat);
+            group.add(star);
+
+            const glow = new THREE.Mesh(new THREE.SphereGeometry(data.radius * 1.5, 24, 16), new THREE.MeshBasicMaterial({
+                color: data.color, transparent: true, opacity: .11, side: THREE.BackSide, blending: THREE.AdditiveBlending
+            }));
+            group.add(glow);
+
+            const light = new THREE.PointLight(data.color, 8, 55, 2);
+            group.add(light);
+
+            // Decorative orbiting miniature planets
+            for (let p = 0; p < data.planets; p++) {
+                const r = data.radius + 1.2 + p * .46;
+                const orbitPts = [];
+                for (let j = 0; j <= 80; j++) {
+                    const a = j / 80 * Math.PI * 2;
+                    orbitPts.push(new THREE.Vector3(Math.cos(a) * r, 0, Math.sin(a) * r));
+                }
+                const orbit = new THREE.LineLoop(
+                    new THREE.BufferGeometry().setFromPoints(orbitPts),
+                    new THREE.LineBasicMaterial({ color: data.color, transparent: true, opacity: .17 })
+                );
+                group.add(orbit);
+                const planet = new THREE.Mesh(
+                    new THREE.SphereGeometry(.12 + seeded(p + index) * .11, 12, 10),
+                    new THREE.MeshStandardMaterial({ color: [0x6dafff, 0xe5b28b, 0x91e0d0, 0xb7a4ff][p % 4], roughness: .9 })
+                );
+                planet.position.set(r, 0, 0); group.add(planet);
+                planet.userData.orbitRadius = r;
+                planet.userData.orbitSpeed = .2 + seeded(p + index + 30) * .5;
+                planet.userData.orbitPhase = seeded(p + index + 60) * Math.PI * 2;
+                planet.userData.isMiniPlanet = true;
+            }
+
+            star.userData.system = data;
+            glow.userData.system = data;
+            const hit = new THREE.Mesh(new THREE.SphereGeometry(data.radius * 1.5, 16, 12), new THREE.MeshBasicMaterial({ visible: false, side: THREE.DoubleSide }));
+            hit.userData.system = data; group.add(hit);
+            pickables.push(star, hit);
+            const sprite = document.createElement('div');
+            sprite.style.cssText = 'position:fixed;z-index:2;pointer-events:none;font:9px Inter,sans-serif;letter-spacing:1px;color:#dce8ff;text-shadow:0 1px 8px #000;white-space:nowrap;display:none';
+            sprite.textContent = data.name.toUpperCase();
+            document.body.appendChild(sprite);
+            data.sprite = sprite;
+            data.group = group; data.star = star; data.glow = glow;
+            systems.push(data);
+            objects.push(data);
+        }
+        systemData.forEach(createStarSystem);
+
+        // Add many extra distant star points around each region
+        function extraStars(count) {
+            const pos = new Float32Array(count * 3);
+            const colors = new Float32Array(count * 3);
+            for (let i = 0; i < count; i++) {
+                const radius = 25 + Math.random() * 180;
+                const a = Math.random() * Math.PI * 2;
+                pos[i * 3] = Math.cos(a) * radius;
+                pos[i * 3 + 1] = (Math.random() - .5) * 45;
+                pos[i * 3 + 2] = Math.sin(a) * radius;
+                const c = new THREE.Color().setHSL(.55 + Math.random() * .18, .45, .6 + Math.random() * .35);
+                colors[i * 3] = c.r; colors[i * 3 + 1] = c.g; colors[i * 3 + 2] = c.b;
+            }
+            const geo = new THREE.BufferGeometry();
+            geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+            geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+            const points = new THREE.Points(geo, new THREE.PointsMaterial({
+                size: .28, vertexColors: true, transparent: true, opacity: .8, depthWrite: false, blending: THREE.AdditiveBlending
+            }));
+            scene.add(points); return points;
+        }
+        const extras = extraStars(12000);
+
+        // Navigation list
+        function buildList(query = '') {
+            const list = $('systems'); list.innerHTML = '';
+            const entries = [{
+                name: 'Milky Way', type: 'Spiral Galaxy', color: 0x8c8bff,
+                stars: '100B+', distance: '100,000 ly', id: 'MW-001',
+                desc: 'Our home galaxy: a barred spiral containing hundreds of billions of stars, gas, dust and dark matter.',
+                radius: 6, group: galaxy, star: core, glow: coreGlow, planets: 0
+            }, ...systems];
+            entries.filter(d => (d.name + ' ' + d.type).toLowerCase().includes(query.toLowerCase())).forEach(data => {
+                const btn = document.createElement('button');
+                btn.className = 'system' + (selected?.name === data.name ? ' active' : '');
+                const color = '#' + new THREE.Color(data.color || 0x8c8bff).getHexString();
+                btn.innerHTML = `<span class="system-icon" style="background:radial-gradient(circle at 30% 30%,#fff,${color} 30%,#090c22 100%);color:${color}"></span><span><div class="system-name">${data.name}</div><div class="system-type">${data.type}</div></span><span class="arrow">›</span>`;
+                btn.addEventListener('click', () => selectObject(data, true));
+                list.appendChild(btn);
+            });
+        }
+        buildList();
+
+        function selectObject(data, focus = false) {
+            selected = data;
+            $('objectName').textContent = data.name;
+            $('objectType').textContent = data.type;
+            $('description').textContent = data.desc;
+            $('typeValue').textContent = data.type.toUpperCase().slice(0, 15);
+            $('starValue').textContent = data.stars || '—';
+            $('distanceValue').textContent = data.distance || '—';
+            $('idValue').textContent = data.id || 'OBJ-000';
+            const col = new THREE.Color(data.color || 0xffc98a);
+            $('preview').style.background = `radial-gradient(circle at 30% 25%,#fff,${'#' + col.getHexString()} 30%,#111333 100%)`;
+            $('preview').style.boxShadow = `0 0 32px ${'#' + col.getHexString()}70`;
+            buildList($('search').value);
+            if (focus) focusObject(data);
+        }
+        function focusObject(data) {
+            const pos = data.group.getWorldPosition(new THREE.Vector3());
+            const r = data.radius || 1;
+            const dir = new THREE.Vector3(1, .55, 1).normalize();
+            cameraGoal = { position: pos.clone().add(dir.multiplyScalar(Math.max(12, r * 5))), target: pos.clone() };
+            controls.autoRotate = false;
+            $('auto').checked = false;
+            $('rotate').classList.remove('active');
+            toast('Traveling to ' + data.name);
+        }
+        $('search').addEventListener('input', e => buildList(e.target.value));
+        $('focus').addEventListener('click', () => selected && focusObject(selected));
+        $('details').addEventListener('click', () => {
+            if (!selected) return;
+            toast(selected.name + ' · ' + selected.type + ' · ' + selected.distance);
+        });
+        $('home').addEventListener('click', () => {
+            cameraGoal = { position: new THREE.Vector3(0, 95, 170), target: new THREE.Vector3(0, 0, 0) };
+            selectObject(systemData[0] && {
+                name: 'Milky Way', type: 'Spiral Galaxy', color: 0x8c8bff, stars: '100B+', distance: '100,000 ly', id: 'MW-001',
+                desc: 'Our home galaxy: a barred spiral containing hundreds of billions of stars, gas, dust and dark matter.',
+                radius: 6, group: galaxy, star: core, glow: coreGlow
+            }, false);
+            controls.autoRotate = true; $('auto').checked = true; $('rotate').classList.add('active');
+            toast('Galaxy view restored');
+        });
+        $('auto').addEventListener('change', e => {
+            controls.autoRotate = e.target.checked;
+            $('rotate').classList.toggle('active', controls.autoRotate);
+        });
+        $('rotate').addEventListener('click', () => {
+            controls.autoRotate = !controls.autoRotate;
+            $('auto').checked = controls.autoRotate;
+            $('rotate').classList.toggle('active', controls.autoRotate);
+        });
+        $('speed').addEventListener('input', e => {
+            speed = Number(e.target.value); $('speedText').textContent = speed.toFixed(1) + '×';
+            controls.autoRotateSpeed = .35 * speed;
+        });
+        $('starsToggle').addEventListener('click', () => {
+            starsOn = !starsOn; starField.visible = starsOn; distantStars.visible = starsOn; extras.visible = starsOn;
+            $('starsToggle').classList.toggle('active', starsOn);
+        });
+        $('nebulaToggle').addEventListener('click', () => {
+            nebulaOn = !nebulaOn; nebula1.visible = nebulaOn; nebula2.visible = nebulaOn; nebula3.visible = nebulaOn;
+            $('nebulaToggle').classList.toggle('active', nebulaOn);
+        });
+        $('zoomIn').addEventListener('click', () => {
+            camera.position.addScaledVector(camera.position.clone().sub(controls.target).normalize(), -Math.max(3, camera.position.distanceTo(controls.target) * .13));
+            camera.position.clampLength(8, 900);
+        });
+        $('zoomOut').addEventListener('click', () => {
+            camera.position.addScaledVector(camera.position.clone().sub(controls.target).normalize(), Math.max(3, camera.position.distanceTo(controls.target) * .13));
+            camera.position.clampLength(8, 900);
+        });
+
+        // Click stars to inspect them.
+        renderer.domElement.addEventListener('pointerdown', e => {
+            if (e.button !== 0) return;
+            pointer.x = e.clientX / innerWidth * 2 - 1;
+            pointer.y = -(e.clientY / innerHeight) * 2 + 1;
+            raycaster.setFromCamera(pointer, camera);
+            const hits = raycaster.intersectObjects(pickables, false);
+            if (hits.length) {
+                const data = hits[0].object.userData.system;
+                if (data) selectObject(data, true);
+            }
+        });
+
+        const clock = new THREE.Clock();
+        function updateLabels() {
+            for (const data of systems) {
+                const p = data.star.getWorldPosition(new THREE.Vector3()).project(camera);
+                const x = (p.x * .5 + .5) * innerWidth;
+                const y = (-p.y * .5 + .5) * innerHeight;
+                const visible = p.z < 1 && x > 0 && x < innerWidth && y > 0 && y < innerHeight;
+                data.sprite.style.display = visible ? 'block' : 'none';
+                data.sprite.style.left = x + 'px';
+                data.sprite.style.top = y + 'px';
+                data.sprite.style.transform = 'translate(-50%,-50%)';
+            }
+        }
+        function animate() {
+            requestAnimationFrame(animate);
+            const dt = Math.min(clock.getDelta(), .05);
+            if (!cameraGoal) {
+                galaxy.rotation.y += dt * .012 * speed;
+                nebula1.rotation.y += dt * .003;
+                nebula2.rotation.y -= dt * .002;
+                extras.rotation.y += dt * .001;
+            } else {
+                camera.position.lerp(cameraGoal.position, .045);
+                controls.target.lerp(cameraGoal.target, .045);
+                if (camera.position.distanceTo(cameraGoal.position) < .25 && controls.target.distanceTo(cameraGoal.target) < .25) {
+                    camera.position.copy(cameraGoal.position); controls.target.copy(cameraGoal.target); cameraGoal = null;
+                }
+            }
+            systems.forEach(data => {
+                data.star.rotation.y += dt * .12 * speed;
+                data.glow.scale.setScalar(1 + Math.sin(performance.now() * .001 + data.radius) * .025);
+                data.group.children.forEach(child => {
+                    if (child.userData.isMiniPlanet) {
+                        const t = performance.now() * .0001 * child.userData.orbitSpeed * speed + child.userData.orbitPhase;
+                        child.position.x = Math.cos(t) * child.userData.orbitRadius;
+                        child.position.z = Math.sin(t) * child.userData.orbitRadius;
+                    }
+                });
+            });
+            coreGlow.scale.setScalar(1 + Math.sin(performance.now() * .001) * .035);
+            starField.rotation.y += dt * .0006;
+            distantStars.rotation.y -= dt * .0003;
+            controls.update(); updateLabels();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        function resize() {
+            camera.aspect = innerWidth / innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+            renderer.setSize(innerWidth, innerHeight);
+        }
+        window.addEventListener('resize', resize);
+        function updateClock() { $('clock').textContent = new Date().toLocaleTimeString('en-GB', { hour12: false }) }
+        updateClock(); setInterval(updateClock, 1000);
+        selectObject({
+            name: 'Milky Way', type: 'Spiral Galaxy', color: 0x8c8bff, stars: '100B+', distance: '100,000 ly', id: 'MW-001',
+            desc: 'Our home galaxy: a barred spiral containing hundreds of billions of stars, gas, dust and dark matter.',
+            radius: 6, group: galaxy, star: core, glow: coreGlow
+        }, false);
+
+        setTimeout(() => {
+            $('loading').style.opacity = '0';
+            setTimeout(() => $('loading').remove(), 750);
+            toast('Welcome to the Universe Explorer');
+        }, 1000);
+    </script>
+</body>
+
+</html>

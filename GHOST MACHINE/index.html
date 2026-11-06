@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GHOST MACHINE | Experimental Invention Lab</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono&display=swap');
+
+        :root {
+            --bg: #070a10;
+            --panel: #0c111b;
+            --line: #202b3b;
+            --cyan: #64f5e3;
+            --blue: #6698ff;
+            --text: #e9f2ff;
+            --muted: #7f91a8;
+            --red: #ff6f87;
+            --green: #8effbd;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: Inter, Arial, sans-serif
+        }
+
+        button,
+        input,
+        textarea,
+        select {
+            font: inherit
+        }
+
+        button {
+            cursor: pointer;
+            transition: .2s
+        }
+
+        button:hover {
+            filter: brightness(1.18);
+            transform: translateY(-1px)
+        }
+
+        button:disabled {
+            opacity: .45;
+            cursor: not-allowed
+        }
+
+        header {
+            height: 67px;
+            border-bottom: 1px solid var(--line);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            background: #090d15
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 800;
+            letter-spacing: 2px
+        }
+
+        .logo {
+            width: 35px;
+            height: 35px;
+            border: 1px solid var(--cyan);
+            border-radius: 11px;
+            display: grid;
+            place-items: center;
+            color: var(--cyan);
+            box-shadow: 0 0 20px #64f5e322
+        }
+
+        .brand small {
+            display: block;
+            font-size: 9px;
+            color: var(--muted);
+            letter-spacing: 2px;
+            margin-top: 3px
+        }
+
+        .status {
+            font: 10px 'Space Mono';
+            color: var(--green);
+            letter-spacing: 1px
+        }
+
+        main {
+            max-width: 1600px;
+            margin: auto;
+            padding: 24px
+        }
+
+        .hero {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            align-items: end;
+            margin-bottom: 22px
+        }
+
+        .eyebrow {
+            font: 10px 'Space Mono';
+            letter-spacing: 3px;
+            color: var(--cyan)
+        }
+
+        h1 {
+            font-size: clamp(27px, 4vw, 43px);
+            letter-spacing: -2px;
+            margin: 10px 0
+        }
+
+        .hero p {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.7;
+            max-width: 650px;
+            margin: 0
+        }
+
+        .pill {
+            border: 1px solid var(--line);
+            border-radius: 30px;
+            padding: 9px 13px;
+            color: var(--muted);
+            font: 10px 'Space Mono';
+            white-space: nowrap
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 285px minmax(0, 1fr) 270px;
+            gap: 15px;
+            align-items: start
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 15px;
+            overflow: hidden
+        }
+
+        .panelhead {
+            padding: 16px;
+            border-bottom: 1px solid var(--line);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 700
+        }
+
+        .panelhead span {
+            color: var(--muted);
+            font: 9px 'Space Mono';
+            letter-spacing: 1px
+        }
+
+        .pad {
+            padding: 16px
+        }
+
+        .label {
+            display: block;
+            color: var(--muted);
+            font-size: 10px;
+            letter-spacing: 1px;
+            font-weight: 700;
+            margin-bottom: 9px
+        }
+
+        textarea,
+        input,
+        select {
+            width: 100%;
+            background: #080d15;
+            color: var(--text);
+            border: 1px solid #273447;
+            border-radius: 9px;
+            padding: 12px;
+            outline: none
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+            font-size: 12px;
+            line-height: 1.6
+        }
+
+        textarea:focus,
+        input:focus,
+        select:focus {
+            border-color: var(--cyan)
+        }
+
+        .primary {
+            background: var(--cyan);
+            color: #061311;
+            border: 0;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 11px;
+            font-weight: 800
+        }
+
+        .secondary {
+            background: #141d2b;
+            color: var(--text);
+            border: 1px solid #29394e;
+            border-radius: 8px;
+            padding: 11px;
+            font-size: 11px;
+            font-weight: 700
+        }
+
+        .danger {
+            color: var(--red)
+        }
+
+        .full {
+            width: 100%;
+            margin-top: 10px
+        }
+
+        .hint {
+            color: var(--muted);
+            font-size: 10px;
+            line-height: 1.65;
+            margin-top: 11px
+        }
+
+        .examples {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px
+        }
+
+        .chip {
+            font-size: 10px;
+            background: #131c29;
+            border: 1px solid #273447;
+            color: #afc1d7;
+            border-radius: 20px;
+            padding: 7px 9px
+        }
+
+        .stage {
+            position: relative;
+            min-width: 0
+        }
+
+        .canvaswrap {
+            position: relative;
+            height: 470px;
+            background: #070c14;
+            border-bottom: 1px solid var(--line)
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+            cursor: crosshair
+        }
+
+        .canvasbadge {
+            position: absolute;
+            top: 13px;
+            left: 14px;
+            font: 9px 'Space Mono';
+            letter-spacing: 1px;
+            color: var(--cyan);
+            pointer-events: none
+        }
+
+        .canvasright {
+            position: absolute;
+            top: 13px;
+            right: 14px;
+            font: 9px 'Space Mono';
+            color: var(--muted);
+            pointer-events: none
+        }
+
+        .canvasfoot {
+            position: absolute;
+            bottom: 12px;
+            left: 14px;
+            right: 14px;
+            display: flex;
+            justify-content: space-between;
+            font: 9px 'Space Mono';
+            color: var(--muted);
+            pointer-events: none
+        }
+
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 12px;
+            border-bottom: 1px solid var(--line)
+        }
+
+        .toolbar button {
+            flex: 1;
+            min-width: 80px
+        }
+
+        .partlist {
+            padding: 12px;
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap
+        }
+
+        .part {
+            padding: 7px 9px;
+            border: 1px solid #29384c;
+            border-radius: 7px;
+            font-size: 10px;
+            color: #c8d6e9;
+            cursor: pointer
+        }
+
+        .part:hover {
+            border-color: var(--cyan)
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 9px;
+            padding: 13px
+        }
+
+        .metric {
+            padding: 12px;
+            background: #080d15;
+            border: 1px solid var(--line);
+            border-radius: 10px
+        }
+
+        .metric small {
+            display: block;
+            color: var(--muted);
+            font-size: 9px;
+            letter-spacing: 1px
+        }
+
+        .metric strong {
+            display: block;
+            font-size: 21px;
+            margin: 9px 0 4px
+        }
+
+        .metric em {
+            font: 9px 'Space Mono';
+            color: var(--cyan);
+            font-style: normal
+        }
+
+        .rightstack {
+            display: grid;
+            gap: 15px
+        }
+
+        .log {
+            height: 190px;
+            overflow: auto;
+            padding: 13px;
+            font: 10px/1.9 'Space Mono';
+            color: #8da3bc
+        }
+
+        .logline {
+            border-bottom: 1px solid #172130;
+            padding: 4px 0;
+            overflow-wrap: anywhere
+        }
+
+        .logline b {
+            color: var(--cyan);
+            font-weight: 400
+        }
+
+        .info {
+            font-size: 11px;
+            line-height: 1.8;
+            color: #9cafc6
+        }
+
+        .result {
+            padding: 13px;
+            border-radius: 9px;
+            background: #080d15;
+            border: 1px solid var(--line);
+            margin-top: 12px
+        }
+
+        .result h3 {
+            font-size: 12px;
+            margin: 0 0 8px
+        }
+
+        .result p {
+            font-size: 10px;
+            color: var(--muted);
+            line-height: 1.7;
+            margin: 0
+        }
+
+        .progress {
+            height: 4px;
+            background: #1a2636;
+            border-radius: 10px;
+            margin-top: 10px;
+            overflow: hidden
+        }
+
+        .progress div {
+            height: 100%;
+            width: 0;
+            background: var(--cyan);
+            transition: width .3s
+        }
+
+        .footer {
+            text-align: center;
+            color: #516176;
+            font: 9px 'Space Mono';
+            letter-spacing: 1px;
+            margin: 20px 0
+        }
+
+        @media(max-width:1150px) {
+            .layout {
+                grid-template-columns: 240px minmax(0, 1fr)
+            }
+
+            .rightstack {
+                grid-column: 1/-1;
+                grid-template-columns: 1fr 1fr
+            }
+
+            .canvaswrap {
+                height: 420px
+            }
+        }
+
+        @media(max-width:720px) {
+            main {
+                padding: 13px
+            }
+
+            .hero {
+                align-items: start;
+                flex-direction: column
+            }
+
+            .layout {
+                grid-template-columns: 1fr
+            }
+
+            .rightstack {
+                grid-column: auto;
+                grid-template-columns: 1fr
+            }
+
+            .canvaswrap {
+                height: 350px
+            }
+
+            header {
+                padding: 0 14px
+            }
+
+            .metrics {
+                grid-template-columns: repeat(3, minmax(0, 1fr))
+            }
+
+            .metric {
+                padding: 9px
+            }
+
+            .metric strong {
+                font-size: 17px
+            }
+
+            .pill {
+                white-space: normal
+            }
+
+            .toolbar button {
+                min-width: 95px
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="brand">
+            <div class="logo">G</div>
+            <div>GHOST MACHINE<small>EXPERIMENTAL INVENTION LAB</small></div>
+        </div>
+        <div class="status">● LOCAL SYSTEM ONLINE</div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div>
+                <div class="eyebrow">RESEARCH DIVISION / 001</div>
+                <h1>Invent what doesn't exist.</h1>
+                <p>Describe a machine. Build its mechanism. Run a simplified experiment. Break the design, evolve it,
+                    and explore alternate configurations.</p>
+            </div>
+            <div class="pill">MODE: PROCEDURAL SIMULATION</div>
+        </section>
+
+        <div class="layout">
+            <section class="panel">
+                <div class="panelhead">01 / INVENTION BRIEF <span>INPUT</span></div>
+                <div class="pad">
+                    <label class="label" for="idea">WHAT SHOULD YOUR MACHINE DO?</label>
+                    <textarea id="idea"
+                        placeholder="Example: A machine that moves objects without touching them...">A machine that moves objects without touching them</textarea>
+                    <button class="primary full" id="generate">✦ GENERATE MECHANISM</button>
+                    <div class="examples">
+                        <button class="chip" data-idea="A machine that stores motion and releases it later">Store
+                            motion</button>
+                        <button class="chip" data-idea="A machine that changes direction without rotating">Change
+                            direction</button>
+                        <button class="chip" data-idea="A machine that moves objects without touching them">Contactless
+                            motion</button>
+                        <button class="chip" data-idea="A machine that converts vibration into movement">Vibration
+                            engine</button>
+                    </div>
+                    <div style="height:1px;background:var(--line);margin:20px 0"></div>
+                    <label class="label">ADD COMPONENTS</label>
+                    <div class="info">Select a part to add it to the workspace. Drag parts to reposition them.</div>
+                    <div class="examples">
+                        <button class="chip" data-part="gear">◉ Gear</button>
+                        <button class="chip" data-part="coil">∿ Coil</button>
+                        <button class="chip" data-part="field">✳ Field</button>
+                        <button class="chip" data-part="sensor">⌁ Sensor</button>
+                        <button class="chip" data-part="motor">↻ Motor</button>
+                        <button class="chip" data-part="core">◆ Core</button>
+                    </div>
+                    <button class="secondary full" id="reset">↺ RESET WORKSPACE</button>
+                    <button class="secondary full" id="export">↓ EXPORT EXPERIMENT JSON</button>
+                    <p class="hint">Prototype note: generated designs are conceptual arrangements. The simulator does
+                        not establish that a proposed mechanism works in real physics.</p>
+                </div>
+            </section>
+
+            <section class="panel stage">
+                <div class="panelhead">02 / MECHANISM CHAMBER <span id="partcount">0 COMPONENTS</span></div>
+                <div class="canvaswrap" id="canvaswrap">
+                    <canvas id="scene"></canvas>
+                    <div class="canvasbadge">GHOST LAB // LIVE VIEW</div>
+                    <div class="canvasright" id="viewstatus">READY · 60 FPS TARGET</div>
+                    <div class="canvasfoot"><span>DRAG COMPONENTS TO MOVE</span><span>PROCEDURAL MODEL / NOT TO
+                            SCALE</span></div>
+                </div>
+                <div class="toolbar">
+                    <button class="primary" id="run">▶ RUN TEST</button>
+                    <button class="secondary" id="stop">■ STOP</button>
+                    <button class="secondary" id="evolve">⟳ EVOLVE</button>
+                    <button class="secondary" id="labels">◎ LABELS: ON</button>
+                </div>
+                <div class="partlist" id="partlist"></div>
+                <div class="metrics">
+                    <div class="metric"><small>SIM. STABILITY</small><strong id="stability">--</strong><em
+                            id="stabilitynote">AWAITING TEST</em></div>
+                    <div class="metric"><small>ENERGY INDEX</small><strong id="energy">--</strong><em>ARBITRARY
+                            UNITS</em></div>
+                    <div class="metric"><small>ITERATION</small><strong id="iteration">01</strong><em
+                            id="iterlabel">BASE DESIGN</em></div>
+                </div>
+            </section>
+
+            <div class="rightstack">
+                <section class="panel">
+                    <div class="panelhead">03 / TEST RESULTS <span>ANALYSIS</span></div>
+                    <div class="pad">
+                        <div class="info" id="summary">Your invention is waiting for its first experiment. Generate a
+                            mechanism, then run a test to inspect its simulated behaviour.</div>
+                        <div class="result">
+                            <h3 id="resulttitle">No experiment run</h3>
+                            <p id="resulttext">Results will appear here after you test the current configuration.</p>
+                            <div class="progress">
+                                <div id="progressbar"></div>
+                            </div>
+                        </div>
+                        <button class="secondary full" id="report">GENERATE LAB REPORT</button>
+                    </div>
+                </section>
+                <section class="panel">
+                    <div class="panelhead">04 / EVENT STREAM <span>LOCAL LOG</span></div>
+                    <div class="log" id="log"></div>
+                </section>
+            </div>
+        </div>
+        <div class="footer">GHOST MACHINE // CONCEPTUAL ENGINEERING SANDBOX // NO REAL-WORLD VALIDATION</div>
+    </main>
+
+    <script>
+        (() => {
+            "use strict";
+
+            const $ = id => document.getElementById(id);
+            const canvas = $("scene");
+            const ctx = canvas.getContext("2d");
+            const wrap = $("canvaswrap");
+
+            let parts = [];
+            let links = [];
+            let selected = null;
+            let dragging = null;
+            let running = false;
+            let labelsOn = true;
+            let simTime = 0;
+            let iteration = 1;
+            let lastTest = null;
+            let raf = 0;
+            let seed = 12;
+
+            const colors = {
+                gear: "#64f5e3", coil: "#b79aff", field: "#6698ff",
+                sensor: "#ffcb75", motor: "#ff82a1", core: "#ffffff"
+            };
+
+            const descriptions = {
+                gear: "Rotational element",
+                coil: "Oscillation element",
+                field: "Abstract field source",
+                sensor: "Measurement element",
+                motor: "Motion driver",
+                core: "Central mechanism"
+            };
+
+            function rand() {
+                seed = (seed * 1664525 + 1013904223) >>> 0;
+                return seed / 4294967296;
+            }
+
+            function log(message) {
+                const row = document.createElement("div");
+                row.className = "logline";
+                const time = new Date().toLocaleTimeString([], { hour12: false });
+                const stamp = document.createElement("b");
+                stamp.textContent = "[" + time + "] ";
+                row.append(stamp, document.createTextNode(message));
+                $("log").prepend(row);
+                while ($("log").children.length > 60) $("log").lastChild.remove();
+            }
+
+            function resize() {
+                const rect = wrap.getBoundingClientRect();
+                const dpr = Math.min(window.devicePixelRatio || 1, 2);
+                canvas.width = Math.max(1, Math.round(rect.width * dpr));
+                canvas.height = Math.max(1, Math.round(rect.height * dpr));
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                draw();
+            }
+            window.addEventListener("resize", resize);
+
+            function addPart(type, x, y) {
+                if (!colors[type]) type = "core";
+                const p = {
+                    id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+                    type, x, y, angle: rand() * 0.5, phase: rand() * 6.28,
+                    speed: 0.3 + rand() * 0.8, radius: type === "core" ? 24 : 18
+                };
+                parts.push(p);
+                if (parts.length > 1) {
+                    const prev = parts[parts.length - 2];
+                    links.push({ a: prev.id, b: p.id });
+                }
+                selected = p.id;
+                updateParts();
+                draw();
+            }
+
+            function generate() {
+                const idea = $("idea").value.trim();
+                if (!idea) { log("Enter an invention brief first."); return; }
+                stop();
+                seed = [...idea].reduce((n, c) => ((n * 31 + c.charCodeAt(0)) >>> 0), 7) + iteration;
+                parts = [];
+                links = [];
+                selected = null;
+
+                const types = ["core", "gear", "coil", "field", "sensor", "motor"];
+                const count = 5 + Math.floor(rand() * 3);
+                const rect = wrap.getBoundingClientRect();
+                const w = rect.width, h = rect.height;
+                const cx = w / 2, cy = h / 2;
+                const radius = Math.min(w, h) * 0.29;
+
+                // Choose a visual arrangement based on keywords in the brief.
+                const lower = idea.toLowerCase();
+                if (lower.includes("vibration")) types.splice(0, types.length, "core", "coil", "coil", "sensor", "motor", "field");
+                else if (lower.includes("touch") || lower.includes("contactless")) types.splice(0, types.length, "core", "field", "field", "sensor", "coil", "motor");
+                else if (lower.includes("direction")) types.splice(0, types.length, "core", "gear", "gear", "sensor", "motor", "field");
+                else if (lower.includes("motion")) types.splice(0, types.length, "core", "motor", "gear", "coil", "sensor", "field");
+
+                for (let i = 0; i < count; i++) {
+                    const a = (i / count) * Math.PI * 2;
+                    const type = types[i % types.length];
+                    parts.push({
+                        id: String(i + 1), type,
+                        x: cx + Math.cos(a) * radius * (0.7 + rand() * 0.45),
+                        y: cy + Math.sin(a) * radius * (0.7 + rand() * 0.45),
+                        angle: rand() * 0.5, phase: rand() * 6.28, speed: 0.4 + rand(),
+                        radius: type === "core" ? 25 : 18
+                    });
+                    if (i > 0) links.push({ a: String(i), b: String(i + 1) });
+                }
+                iteration = 1;
+                simTime = 0;
+                lastTest = null;
+                $("iteration").textContent = "01";
+                $("iterlabel").textContent = "BASE DESIGN";
+                $("summary").textContent = "Generated a conceptual arrangement for: “" + idea + "”. Select parts, reposition them, and run a simplified motion test.";
+                $("resulttitle").textContent = "Design assembled";
+                $("resulttext").textContent = "No physical claims have been verified. Run the simulation to inspect the model's behaviour.";
+                $("progressbar").style.width = "0%";
+                $("stability").textContent = "--";
+                $("energy").textContent = "--";
+                $("stabilitynote").textContent = "AWAITING TEST";
+                updateParts();
+                draw();
+                log("Generated " + parts.length + " components from invention brief.");
+            }
+
+            function updateParts() {
+                $("partcount").textContent = parts.length + " COMPONENTS";
+                $("partlist").replaceChildren();
+                parts.forEach(p => {
+                    const b = document.createElement("button");
+                    b.className = "part";
+                    b.style.borderColor = selected === p.id ? colors[p.type] : "#29384c";
+                    b.textContent = (selected === p.id ? "● " : "") + p.type.toUpperCase() + " #" + p.id;
+                    b.onclick = () => { selected = p.id; updateParts(); draw(); };
+                    $("partlist").append(b);
+                });
+            }
+
+            function point(p) {
+                return { x: p.x, y: p.y };
+            }
+
+            function draw() {
+                if (!ctx) return;
+                const w = wrap.clientWidth, h = wrap.clientHeight;
+                ctx.clearRect(0, 0, w, h);
+                ctx.fillStyle = "#070c14";
+                ctx.fillRect(0, 0, w, h);
+
+                // Grid
+                ctx.lineWidth = 0.6;
+                ctx.strokeStyle = "#162233";
+                for (let x = 0; x < w; x += 25) {
+                    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+                }
+                for (let y = 0; y < h; y += 25) {
+                    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+                }
+
+                // Center guides
+                ctx.strokeStyle = "#24374a";
+                ctx.setLineDash([4, 7]);
+                ctx.beginPath(); ctx.moveTo(w / 2, 0); ctx.lineTo(w / 2, h); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, h / 2); ctx.lineTo(w, h / 2); ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Links
+                links.forEach(l => {
+                    const a = parts.find(p => p.id === l.a), b = parts.find(p => p.id === l.b);
+                    if (!a || !b) return;
+                    ctx.strokeStyle = "#36536a";
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+                    const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+                    ctx.fillStyle = "#64f5e3";
+                    ctx.beginPath(); ctx.arc(mx, my, 2, 0, Math.PI * 2); ctx.fill();
+                    if (running) {
+                        const t = (simTime % 2) / 2;
+                        ctx.fillStyle = "#ffffff";
+                        ctx.beginPath(); ctx.arc(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, 3, 0, Math.PI * 2); ctx.fill();
+                    }
+                });
+
+                parts.forEach(p => {
+                    const color = colors[p.type];
+                    const pulse = running ? Math.sin(simTime * 3 + p.phase) * 3 : 0;
+                    const r = p.radius + pulse;
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate(p.angle + (running ? simTime * p.speed * .25 : 0));
+
+                    // Soft glow
+                    ctx.shadowBlur = selected === p.id ? 23 : 10;
+                    ctx.shadowColor = color;
+                    ctx.strokeStyle = color;
+                    ctx.fillStyle = "#0b1723";
+                    ctx.lineWidth = selected === p.id ? 2 : 1.3;
+
+                    if (p.type === "gear") {
+                        ctx.beginPath();
+                        for (let i = 0; i < 24; i++) {
+                            const a = i * Math.PI / 12;
+                            const rr = i % 2 === 0 ? r : r * .83;
+                            const x = Math.cos(a) * rr, y = Math.sin(a) * rr;
+                            i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+                        }
+                        ctx.closePath(); ctx.fill(); ctx.stroke();
+                        ctx.beginPath(); ctx.arc(0, 0, r * .35, 0, Math.PI * 2); ctx.stroke();
+                    } else if (p.type === "coil") {
+                        ctx.beginPath();
+                        for (let i = 0; i <= 100; i++) {
+                            const a = i / 100 * Math.PI * 5;
+                            const rr = r * .12 + i / 100 * r * .75;
+                            const x = Math.cos(a) * rr, y = Math.sin(a) * rr;
+                            i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+                        }
+                        ctx.stroke();
+                    } else if (p.type === "field") {
+                        for (let i = 0; i < 3; i++) {
+                            ctx.beginPath(); ctx.ellipse(0, 0, r * (1 - i * .18), r * (.4 + i * .15), i * .7, 0, Math.PI * 2); ctx.stroke();
+                        }
+                        ctx.beginPath(); ctx.arc(0, 0, 3, 0, Math.PI * 2); ctx.fillStyle = color; ctx.fill();
+                    } else if (p.type === "sensor") {
+                        ctx.beginPath(); ctx.moveTo(0, -r); ctx.lineTo(r * .8, r * .7); ctx.lineTo(-r * .8, r * .7); ctx.closePath(); ctx.fill(); ctx.stroke();
+                        ctx.beginPath(); ctx.arc(0, 0, r * .25, 0, Math.PI * 2); ctx.stroke();
+                    } else if (p.type === "motor") {
+                        ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+                        ctx.beginPath(); ctx.moveTo(-r * .5, 0); ctx.lineTo(r * .5, 0); ctx.moveTo(0, -r * .5); ctx.lineTo(0, r * .5); ctx.stroke();
+                    } else {
+                        ctx.beginPath(); ctx.moveTo(0, -r); ctx.lineTo(r * .8, 0); ctx.lineTo(0, r); ctx.lineTo(-r * .8, 0); ctx.closePath(); ctx.fill(); ctx.stroke();
+                        ctx.beginPath(); ctx.arc(0, 0, r * .45, 0, Math.PI * 2); ctx.stroke();
+                    }
+                    ctx.shadowBlur = 0;
+                    ctx.restore();
+
+                    if (labelsOn) {
+                        ctx.font = "10px monospace";
+                        ctx.textAlign = "center";
+                        ctx.fillStyle = selected === p.id ? "#ffffff" : "#93a7bc";
+                        ctx.fillText(p.type.toUpperCase(), p.x, p.y + r + 15);
+                    }
+                    if (selected === p.id) {
+                        ctx.strokeStyle = "#ffffff66";
+                        ctx.setLineDash([3, 4]);
+                        ctx.beginPath(); ctx.arc(p.x, p.y, r + 9, 0, Math.PI * 2); ctx.stroke();
+                        ctx.setLineDash([]);
+                    }
+                });
+
+                if (parts.length === 0) {
+                    ctx.fillStyle = "#62758b";
+                    ctx.textAlign = "center";
+                    ctx.font = "12px monospace";
+                    ctx.fillText("AWAITING MECHANISM GENERATION", w / 2, h / 2);
+                }
+            }
+
+            function canvasPoint(e) {
+                const rect = canvas.getBoundingClientRect();
+                return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+            }
+            canvas.addEventListener("pointerdown", e => {
+                const pos = canvasPoint(e);
+                const p = [...parts].reverse().find(p => Math.hypot(p.x - pos.x, p.y - pos.y) < p.radius + 12);
+                if (p) {
+                    selected = p.id; dragging = p; canvas.setPointerCapture(e.pointerId);
+                    updateParts(); draw();
+                }
+            });
+            canvas.addEventListener("pointermove", e => {
+                if (!dragging) return;
+                const pos = canvasPoint(e);
+                dragging.x = pos.x; dragging.y = pos.y;
+                draw();
+            });
+            canvas.addEventListener("pointerup", () => { if (dragging) log("Repositioned " + dragging.type + " component."); dragging = null; });
+            canvas.addEventListener("pointercancel", () => dragging = null);
+
+            function run() {
+                if (parts.length === 0) { log("Generate a mechanism before testing."); return; }
+                running = true;
+                $("viewstatus").textContent = "SIMULATION RUNNING";
+                log("Motion simulation started.");
+                cancelAnimationFrame(raf);
+                let last = performance.now();
+                function frame(now) {
+                    if (!running) return;
+                    const dt = Math.min((now - last) / 1000, .05);
+                    last = now; simTime += dt;
+                    draw();
+                    raf = requestAnimationFrame(frame);
+                }
+                raf = requestAnimationFrame(frame);
+            }
+
+            function stop() {
+                running = false;
+                cancelAnimationFrame(raf);
+                $("viewstatus").textContent = "READY";
+                draw();
+            }
+            function test() {
+                if (parts.length === 0) { log("No mechanism to test."); return; }
+                stop();
+                const diversity = new Set(parts.map(p => p.type)).size;
+                const spacing = parts.length > 1
+                    ? parts.reduce((s, p) => s + parts.reduce((t, q) => t + (p === q ? 0 : Math.hypot(p.x - q.x, p.y - q.y)), 0), 0) / (parts.length * (parts.length - 1))
+                    : 0;
+                const connectivity = parts.length ? links.length / Math.max(1, parts.length - 1) : 0;
+                // These are heuristic visualization scores, not real physics.
+                const score = Math.max(18, Math.min(98, Math.round(38 + diversity * 7 + connectivity * 12 + Math.min(spacing / 5, 14) - Math.abs(parts.length - 6) * 3)));
+                const energy = Math.round(20 + diversity * 13 + parts.length * 4 + rand() * 25);
+                lastTest = { score, energy, parts: parts.length, diversity, idea: $("idea").value };
+                $("stability").textContent = score + "%";
+                $("energy").textContent = energy;
+                $("stabilitynote").textContent = score > 70 ? "MODEL SCORE: HIGH" : "MODEL SCORE: LOW";
+                $("summary").textContent = "The heuristic test scored this configuration at " + score + "%. The score reflects arrangement and component diversity only; it is not a validated engineering measurement.";
+                $("resulttitle").textContent = score > 70 ? "Configuration looks consistent" : "Configuration needs revision";
+                $("resulttext").textContent = "The model contains " + parts.length + " components across " + diversity + " component types. Try evolving the arrangement, changing the layout, or adding parts. This test does not prove physical feasibility.";
+                $("progressbar").style.width = score + "%";
+                log("Test completed. Heuristic score: " + score + "%. No real-world validation performed.");
+            }
+
+            function evolve() {
+                if (parts.length === 0) { generate(); return; }
+                stop();
+                iteration++;
+                seed += iteration * 91;
+                const rect = wrap.getBoundingClientRect();
+                parts.forEach((p, i) => {
+                    // A new spatial arrangement; retain the component identities.
+                    const a = (i / parts.length) * Math.PI * 2 + rand() * .8;
+                    const radius = Math.min(rect.width, rect.height) * (.15 + rand() * .2);
+                    p.x = rect.width / 2 + Math.cos(a) * radius;
+                    p.y = rect.height / 2 + Math.sin(a) * radius;
+                    p.phase = rand() * 6.28;
+                    p.angle = rand() * 6.28;
+                });
+                // Occasionally mutate one component type.
+                if (parts.length > 2 && rand() > .35) {
+                    const p = parts[Math.floor(rand() * parts.length)];
+                    const types = Object.keys(colors);
+                    p.type = types[Math.floor(rand() * types.length)];
+                    p.radius = p.type === "core" ? 25 : 18;
+                }
+                links = [];
+                for (let i = 1; i < parts.length; i++) {
+                    links.push({ a: parts[i - 1].id, b: parts[i].id });
+                }
+                $("iteration").textContent = String(iteration).padStart(2, "0");
+                $("iterlabel").textContent = "MUTATED DESIGN";
+                lastTest = null;
+                $("stability").textContent = "--";
+                $("energy").textContent = "--";
+                $("stabilitynote").textContent = "RUN TEST AGAIN";
+                $("resulttitle").textContent = "Alternate configuration generated";
+                $("resulttext").textContent = "The arrangement has changed procedurally. Test it and compare the heuristic score with the previous configuration.";
+                $("progressbar").style.width = "0%";
+                updateParts(); draw();
+                log("Generated alternate arrangement, iteration " + iteration + ".");
+            }
+
+            function reset() {
+                stop(); parts = []; links = []; selected = null; iteration = 1; simTime = 0; lastTest = null;
+                $("iteration").textContent = "01"; $("iterlabel").textContent = "BASE DESIGN";
+                $("stability").textContent = "--"; $("energy").textContent = "--";
+                $("stabilitynote").textContent = "AWAITING TEST";
+                $("summary").textContent = "Workspace reset. Enter an invention brief and generate a new mechanism.";
+                $("resulttitle").textContent = "No experiment run";
+                $("resulttext").textContent = "Results will appear here after you test the current configuration.";
+                $("progressbar").style.width = "0%";
+                updateParts(); draw(); log("Workspace reset.");
+            }
+
+            function exportJSON() {
+                const data = {
+                    project: "GHOST MACHINE",
+                    createdAt: new Date().toISOString(),
+                    inventionBrief: $("idea").value,
+                    iteration,
+                    components: parts.map(p => ({ id: p.id, type: p.type, x: Math.round(p.x), y: Math.round(p.y), angle: p.angle })),
+                    connections: links,
+                    lastHeuristicTest: lastTest,
+                    disclaimer: "Conceptual prototype. Scores are heuristics, not validated physics or engineering results."
+                };
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url; a.download = "ghost-machine-experiment.json"; a.click();
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+                log("Experiment exported as JSON.");
+            }
+
+            function report() {
+                if (!lastTest) { test(); if (!lastTest) return; }
+                const r = lastTest;
+                const text = `GHOST MACHINE — LAB REPORT
+Date: ${new Date().toLocaleString()}
+
+INVENTION BRIEF
+${r.idea}
+
+MODEL
+Components: ${r.parts}
+Component types: ${r.diversity}
+Iteration: ${iteration}
+
+HEURISTIC SIMULATION
+Stability index: ${r.score}%
+Energy index: ${r.energy} arbitrary units
+
+INTERPRETATION
+These scores are visual-model heuristics, not measurements of physical stability, energy efficiency, or feasibility.
+
+NEXT STEPS
+1. Change component positions.
+2. Add or remove parts.
+3. Generate an alternate configuration.
+4. Validate any real-world mechanism with appropriate engineering methods.`;
+                const blob = new Blob([text], { type: "text/plain" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url; a.download = "ghost-machine-lab-report.txt"; a.click();
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+                log("Lab report exported.");
+            }
+
+            $("generate").addEventListener("click", generate);
+            $("run").addEventListener("click", () => { run(); setTimeout(() => { if (running) test(); }, 2500); });
+            $("stop").addEventListener("click", () => { stop(); log("Simulation stopped."); });
+            $("evolve").addEventListener("click", evolve);
+            $("reset").addEventListener("click", reset);
+            $("export").addEventListener("click", exportJSON);
+            $("report").addEventListener("click", report);
+            $("labels").addEventListener("click", () => {
+                labelsOn = !labelsOn;
+                $("labels").textContent = "◎ LABELS: " + (labelsOn ? "ON" : "OFF");
+                draw();
+            });
+            document.querySelectorAll("[data-idea]").forEach(b => {
+                b.addEventListener("click", () => {
+                    $("idea").value = b.dataset.idea;
+                    generate();
+                });
+            });
+            document.querySelectorAll("[data-part]").forEach(b => {
+                b.addEventListener("click", () => {
+                    const rect = wrap.getBoundingClientRect();
+                    addPart(b.dataset.part, rect.width / 2 + (rand() - .5) * 120, rect.height / 2 + (rand() - .5) * 100);
+                    log("Added " + b.dataset.part + " component.");
+                });
+            });
+
+            log("Ghost Machine experimental lab initialized.");
+            log("Describe an idea to generate a procedural mechanism.");
+            resize();
+            generate();
+        })();
+    </script>
+</body>
+
+</html>

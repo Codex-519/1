@@ -1,0 +1,1053 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXUS | AI Command Center</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
+
+:root{
+  --bg:#070a12;
+  --panel:rgba(15,22,38,.88);
+  --panel2:#0c1322;
+  --line:rgba(114,155,211,.17);
+  --text:#eaf2ff;
+  --muted:#8292ad;
+  --cyan:#54e8ff;
+  --blue:#648bff;
+  --purple:#ae83ff;
+  --green:#5ef2b1;
+  --red:#ff718c;
+  --radius:17px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:Inter,system-ui,sans-serif;min-height:100vh;
+  background-image:
+   radial-gradient(ellipse at 12% 0%,rgba(42,89,177,.16),transparent 36%),
+   radial-gradient(ellipse at 92% 15%,rgba(121,59,211,.12),transparent 34%);
+}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible{
+  outline:2px solid var(--cyan);outline-offset:3px
+}
+button:disabled{opacity:.45;cursor:not-allowed}
+.topbar{
+  height:76px;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 4.2%;gap:18px;background:rgba(7,10,18,.85);
+  position:sticky;top:0;z-index:10;backdrop-filter:blur(18px)
+}
+.brand{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:2px}
+.brand-icon{
+  width:39px;height:39px;border:1px solid rgba(84,232,255,.5);
+  border-radius:12px;display:grid;place-items:center;color:var(--cyan);
+  box-shadow:0 0 24px rgba(84,232,255,.12);font-size:21px
+}
+.brand small{display:block;font:10px "Space Mono",monospace;color:var(--muted);letter-spacing:2px;margin-top:4px}
+.top-right{display:flex;align-items:center;gap:17px}
+.system-state,.live-label{
+  display:flex;align-items:center;gap:8px;font:10px "Space Mono",monospace;
+  letter-spacing:1px;color:var(--green)
+}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green)}
+.icon-button,.secondary,.primary,.danger{
+  border:1px solid var(--line);color:var(--text);background:#111a2b;
+  padding:10px 13px;border-radius:10px;transition:.2s
+}
+.icon-button:hover,.secondary:hover{border-color:var(--cyan);background:#142338}
+.primary{
+  color:#061019;background:var(--cyan);border-color:var(--cyan);font-weight:800
+}
+.primary:hover{filter:brightness(1.12);box-shadow:0 0 20px #54e8ff32}
+.danger:hover{border-color:var(--red);color:var(--red)}
+.layout{
+  width:min(1500px,94%);margin:0 auto;padding:27px 0 40px;
+  display:grid;grid-template-columns:225px minmax(0,1fr);gap:23px
+}
+.sidebar{display:flex;flex-direction:column;gap:20px}
+.side-section{padding:8px 0}
+.section-label{
+  color:#667996;font:10px "Space Mono",monospace;
+  letter-spacing:2px;margin:0 0 13px 10px
+}
+.nav-button{
+  width:100%;display:flex;align-items:center;gap:12px;
+  border:1px solid transparent;background:transparent;color:#94a5c0;
+  padding:12px 13px;border-radius:10px;text-align:left;margin:3px 0
+}
+.nav-button:hover,.nav-button.active{
+  background:rgba(84,232,255,.075);border-color:rgba(84,232,255,.14);color:var(--cyan)
+}
+.nav-icon{width:22px;text-align:center;font-size:17px}
+.sidebar-card{
+  padding:16px;background:linear-gradient(145deg,#111d33,#0b1120);
+  border:1px solid var(--line);border-radius:14px
+}
+.sidebar-card h3{font-size:12px;margin:0 0 9px}
+.sidebar-card p{font-size:11px;line-height:1.7;color:var(--muted);margin:0}
+.mini-meter{height:4px;border-radius:10px;background:#243047;margin:14px 0 8px;overflow:hidden}
+.mini-meter span{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--cyan),var(--purple))}
+main{min-width:0}
+.welcome{
+  display:flex;justify-content:space-between;align-items:flex-end;gap:20px;
+  margin:4px 0 23px
+}
+.eyebrow{font:10px "Space Mono",monospace;color:var(--cyan);letter-spacing:2px}
+h1{font-size:clamp(27px,3vw,39px);letter-spacing:-1.5px;margin:10px 0 7px}
+.subtitle{color:var(--muted);font-size:13px;margin:0;line-height:1.6}
+.clock{text-align:right;flex-shrink:0}
+#clock{font:clamp(23px,3vw,33px) "Space Mono",monospace;letter-spacing:-1px}
+#date{font-size:11px;color:var(--muted);margin-top:6px}
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px}
+.card{
+  min-width:0;background:var(--panel);border:1px solid var(--line);
+  border-radius:var(--radius);padding:19px;position:relative;overflow:hidden;
+  box-shadow:0 12px 40px #00000012
+}
+.span-12{grid-column:span 12}
+.span-8{grid-column:span 8}
+.span-7{grid-column:span 7}
+.span-6{grid-column:span 6}
+.span-5{grid-column:span 5}
+.span-4{grid-column:span 4}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:17px}
+.card-title{font-size:13px;font-weight:700;letter-spacing:.1px}
+.card-sub{font-size:10px;color:var(--muted);margin-top:5px}
+.pill{
+  font:9px "Space Mono",monospace;letter-spacing:1px;
+  padding:6px 8px;border-radius:7px;border:1px solid var(--line);color:var(--muted)
+}
+.pill.cyan{color:var(--cyan);border-color:#54e8ff30;background:#54e8ff09}
+.assistant-card{
+  background:radial-gradient(ellipse at 80% 0%,#254e7a30,transparent 42%),var(--panel);
+  min-height:290px
+}
+.assistant-top{display:flex;align-items:center;gap:13px;margin-bottom:17px}
+.ai-orb{
+  width:54px;height:54px;flex-shrink:0;border-radius:50%;
+  border:1px solid #54e8ff88;display:grid;place-items:center;color:var(--cyan);
+  font-size:23px;position:relative;
+  background:radial-gradient(circle,#54e8ff28,transparent 70%);
+  box-shadow:0 0 30px #54e8ff12,inset 0 0 15px #54e8ff12
+}
+.ai-orb:after{content:"";position:absolute;inset:-5px;border:1px dashed #54e8ff45;border-radius:50%;animation:spin 18s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.assistant-name{font-weight:800;font-size:14px}
+.assistant-status{font:9px "Space Mono",monospace;color:var(--green);margin-top:6px}
+.response-box{
+  background:#080f1d;border:1px solid #26344b;border-radius:12px;
+  padding:14px;min-height:85px;font-size:12px;line-height:1.8;color:#b8c8e1
+}
+.response-box strong{color:var(--cyan)}
+.prompt-row{display:flex;gap:9px;margin-top:12px}
+.text-input,.text-area{
+  width:100%;min-width:0;background:#080f1d;border:1px solid #26344b;
+  color:var(--text);padding:12px;border-radius:10px;font-size:12px
+}
+.text-input::placeholder,.text-area::placeholder{color:#5d6e89}
+.prompt-row .primary{white-space:nowrap}
+.quick-prompts{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}
+.chip{
+  padding:7px 9px;background:#101b2b;color:#8fa7c6;border:1px solid var(--line);
+  border-radius:8px;font-size:10px
+}
+.chip:hover{border-color:#54e8ff80;color:var(--cyan)}
+.timer-card{background:radial-gradient(circle at 50% 45%,#5b58b31c,transparent 54%),var(--panel)}
+.timer-ring{
+  width:164px;height:164px;border-radius:50%;margin:8px auto 16px;
+  display:grid;place-items:center;position:relative;
+  background:conic-gradient(var(--purple) var(--progress,100%),#202943 0)
+}
+.timer-ring:before{content:"";position:absolute;inset:7px;border-radius:50%;background:#0b1020;border:1px solid #ffffff0b}
+.timer-center{position:relative;text-align:center}
+#timer-display{font:29px "Space Mono",monospace;letter-spacing:-2px}
+.timer-caption{font:9px "Space Mono",monospace;color:var(--muted);margin-top:8px;letter-spacing:1px}
+.timer-controls{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.timer-controls button{font-size:11px;padding:9px 13px}
+.stat-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.stat-box{padding:12px;border:1px solid var(--line);border-radius:11px;background:#0b1220}
+.stat-value{font:22px "Space Mono",monospace;color:var(--cyan)}
+.stat-label{font-size:10px;color:var(--muted);margin-top:6px}
+.task-input-row{display:flex;gap:8px;margin-bottom:13px}
+.task-input-row .text-input{padding:10px}
+.task-list{display:flex;flex-direction:column;gap:8px;max-height:270px;overflow:auto}
+.task-item{
+  display:flex;align-items:center;gap:10px;padding:11px;
+  background:#0a1120;border:1px solid #1d2a40;border-radius:10px
+}
+.task-check{accent-color:var(--cyan);width:15px;height:15px;flex-shrink:0}
+.task-text{font-size:11px;line-height:1.5;overflow-wrap:anywhere;flex:1}
+.task-item.done .task-text{text-decoration:line-through;color:#64738d}
+.small-action{border:0;background:transparent;color:#7588a5;padding:5px;font-size:14px}
+.small-action:hover{color:var(--red)}
+.empty-state{color:#687a96;font-size:11px;text-align:center;padding:22px 8px}
+.note-area{min-height:130px;resize:vertical;line-height:1.7}
+.note-actions{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px}
+.note-status{font-size:10px;color:var(--muted)}
+.console{
+  background:#070c15;border:1px solid #1e3048;border-radius:12px;padding:14px;
+  font:11px "Space Mono",monospace;min-height:156px;max-height:220px;
+  overflow:auto;line-height:1.9
+}
+.log-line{color:#8799b5;overflow-wrap:anywhere}
+.log-line .log-time{color:#52647f}
+.log-line .log-ok{color:var(--green)}
+.log-line .log-cmd{color:var(--cyan)}
+.console-input-row{display:flex;gap:8px;margin-top:10px;align-items:center}
+.console-prompt{color:var(--green);font:13px "Space Mono",monospace}
+.console-input-row input{flex:1;background:transparent;border:0;color:var(--text);min-width:0;font:11px "Space Mono",monospace;padding:8px 0}
+.activity-list{display:flex;flex-direction:column;gap:12px;max-height:245px;overflow:auto}
+.activity-item{display:flex;align-items:flex-start;gap:10px}
+.activity-icon{
+  width:29px;height:29px;border-radius:9px;background:#111e30;
+  display:grid;place-items:center;font-size:13px;flex-shrink:0
+}
+.activity-text{font-size:11px;line-height:1.5;color:#bdc9dc}
+.activity-time{font-size:9px;color:#687c99;margin-top:4px}
+.shortcut-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.shortcut{
+  text-align:left;background:#0b1322;border:1px solid var(--line);
+  padding:13px;border-radius:11px;color:var(--text);min-width:0
+}
+.shortcut:hover{border-color:#54e8ff65;transform:translateY(-1px)}
+.shortcut-icon{font-size:18px;margin-bottom:9px}
+.shortcut strong{display:block;font-size:11px}
+.shortcut span{display:block;color:var(--muted);font-size:10px;line-height:1.5;margin-top:5px}
+.footer{
+  padding:19px 0 0;color:#50617b;font:9px "Space Mono",monospace;
+  letter-spacing:1px;display:flex;justify-content:space-between;gap:12px
+}
+.toast{
+  position:fixed;bottom:23px;right:23px;z-index:20;
+  padding:13px 17px;background:#122339;border:1px solid #54e8ff50;
+  border-radius:12px;font-size:12px;box-shadow:0 10px 35px #0008;
+  transform:translateY(20px);opacity:0;pointer-events:none;transition:.25s
+}
+.toast.show{transform:translateY(0);opacity:1}
+.voice-listening{animation:pulse 1s infinite}
+@keyframes pulse{50%{box-shadow:0 0 25px #54e8ff55}}
+body.light{
+  --bg:#edf3fb;--panel:rgba(255,255,255,.94);--panel2:#fff;
+  --line:rgba(54,81,125,.18);--text:#15233b;--muted:#62718a
+}
+body.light .topbar{background:#f5f8ffed}
+body.light .response-box,body.light .text-input,body.light .text-area,
+body.light .stat-box,body.light .task-item,body.light .shortcut,
+body.light .console{background:#f4f7fc;color:#15233b}
+body.light .timer-ring:before{background:#f4f7fc}
+body.light .nav-button{color:#60718c}
+body.light .assistant-card,body.light .timer-card{background:#ffffff}
+@media(max-width:1000px){
+ .layout{grid-template-columns:1fr;width:95%}
+ .sidebar{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+ .side-section{padding:0}
+ .sidebar-card{display:none}
+ .nav-group{display:flex;flex-wrap:wrap;gap:5px}
+ .nav-button{width:auto;margin:0;padding:9px 10px;font-size:11px}
+ .section-label{margin-bottom:8px}
+}
+@media(max-width:720px){
+ .topbar{height:66px;padding:0 4%}
+ .brand{font-size:13px;letter-spacing:1px}
+ .brand-icon{width:34px;height:34px}
+ .system-state{display:none}
+ .top-right{gap:8px}
+ .layout{padding-top:20px}
+ .welcome{align-items:flex-start;flex-direction:column}
+ .clock{text-align:left}
+ .span-8,.span-7,.span-6,.span-5,.span-4{grid-column:span 12}
+ .sidebar{grid-template-columns:1fr}
+ .side-section{display:none}
+ .grid{gap:12px}
+ .card{padding:15px}
+ .footer{flex-direction:column}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-icon">⌘</div>
+    <div>NEXUS <small>PERSONAL COMMAND CENTER</small></div>
+  </div>
+  <div class="top-right">
+    <div class="system-state"><span class="dot"></span> ALL SYSTEMS READY</div>
+    <button class="icon-button" id="theme-btn" title="Toggle light/dark theme" aria-label="Toggle theme">☼</button>
+    <button class="icon-button" id="voice-top" title="Voice assistant" aria-label="Start voice assistant">🎙</button>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="side-section">
+      <div class="section-label">WORKSPACE</div>
+      <div class="nav-group">
+        <button class="nav-button active" data-target="overview"><span class="nav-icon">◈</span>Overview</button>
+        <button class="nav-button" data-target="assistant"><span class="nav-icon">✧</span>AI Assistant</button>
+        <button class="nav-button" data-target="tasks"><span class="nav-icon">☑</span>Tasks</button>
+        <button class="nav-button" data-target="focus"><span class="nav-icon">◷</span>Focus Room</button>
+        <button class="nav-button" data-target="notes"><span class="nav-icon">▤</span>Notes</button>
+      </div>
+    </div>
+    <div class="side-section">
+      <div class="section-label">SYSTEM</div>
+      <div class="nav-group">
+        <button class="nav-button" data-target="console"><span class="nav-icon">⌘</span>Command Console</button>
+        <button class="nav-button" data-target="activity"><span class="nav-icon">◉</span>Activity Log</button>
+      </div>
+    </div>
+    <div class="sidebar-card">
+      <h3>◈ LOCAL STORAGE</h3>
+      <p>Your tasks, notes and preferences are saved in this browser on this device.</p>
+      <div class="mini-meter"><span></span></div>
+      <p id="storage-status">Persistence enabled</p>
+    </div>
+  </aside>
+
+  <main id="overview">
+    <div class="welcome">
+      <div>
+        <div class="eyebrow">YOUR DIGITAL SPACE / V 1.0</div>
+        <h1 id="greeting">Welcome back.</h1>
+        <p class="subtitle">Think clearly. Focus deeply. Get things done.</p>
+      </div>
+      <div class="clock">
+        <div id="clock">00:00:00</div>
+        <div id="date">Loading local time...</div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <section class="card assistant-card span-7" id="assistant">
+        <div class="card-head">
+          <div><div class="card-title">NEXUS AI ASSISTANT</div><div class="card-sub">Your personal command interface</div></div>
+          <span class="pill cyan">INTERACTIVE</span>
+        </div>
+        <div class="assistant-top">
+          <div class="ai-orb" id="ai-orb">✧</div>
+          <div><div class="assistant-name">Nexus Intelligence</div><div class="assistant-status" id="assistant-status">● READY TO ASSIST</div></div>
+        </div>
+        <div class="response-box" id="assistant-response" aria-live="polite">
+          Hello! I'm Nexus, your browser-based personal assistant. Ask me about your tasks, focus timer, or available commands.
+        </div>
+        <form id="assistant-form" class="prompt-row">
+          <input class="text-input" id="assistant-input" placeholder="Ask Nexus something..." autocomplete="off" aria-label="Ask Nexus">
+          <button class="primary" type="submit">Send ↗</button>
+        </form>
+        <div class="quick-prompts">
+          <button class="chip" data-prompt="What can you do?">What can you do?</button>
+          <button class="chip" data-prompt="Show my tasks">My tasks</button>
+          <button class="chip" data-prompt="Start focus">Start focus</button>
+          <button class="chip" data-prompt="Give me motivation">Motivate me</button>
+        </div>
+      </section>
+
+      <section class="card timer-card span-5" id="focus">
+        <div class="card-head">
+          <div><div class="card-title">FOCUS ROOM</div><div class="card-sub">One task at a time</div></div>
+          <span class="pill">POMODORO</span>
+        </div>
+        <div class="timer-ring" id="timer-ring">
+          <div class="timer-center">
+            <div id="timer-display">25:00</div>
+            <div class="timer-caption" id="timer-caption">READY TO FOCUS</div>
+          </div>
+        </div>
+        <div class="timer-controls">
+          <button class="primary" id="timer-start">▶ Start</button>
+          <button class="secondary" id="timer-pause" disabled>Ⅱ Pause</button>
+          <button class="secondary" id="timer-reset">↺ Reset</button>
+        </div>
+        <div style="display:flex;justify-content:center;gap:8px;margin-top:13px">
+          <button class="chip" data-minutes="25">25 min</button>
+          <button class="chip" data-minutes="15">15 min</button>
+          <button class="chip" data-minutes="5">5 min break</button>
+        </div>
+      </section>
+
+      <section class="card span-7" id="tasks">
+        <div class="card-head">
+          <div><div class="card-title">TASK CONTROL</div><div class="card-sub">Organize your next move</div></div>
+          <span class="pill cyan" id="task-count-pill">0 TASKS</span>
+        </div>
+        <div class="stat-row">
+          <div class="stat-box"><div class="stat-value" id="total-tasks">0</div><div class="stat-label">Total tasks</div></div>
+          <div class="stat-box"><div class="stat-value" id="done-tasks">0</div><div class="stat-label">Completed</div></div>
+          <div class="stat-box"><div class="stat-value" id="left-tasks">0</div><div class="stat-label">Remaining</div></div>
+        </div>
+        <form class="task-input-row" id="task-form">
+          <input class="text-input" id="task-input" placeholder="Add a task..." maxlength="180" aria-label="New task">
+          <button class="primary" type="submit">+ Add</button>
+        </form>
+        <div class="task-list" id="task-list"></div>
+      </section>
+
+      <section class="card span-5" id="notes">
+        <div class="card-head">
+          <div><div class="card-title">QUICK NOTES</div><div class="card-sub">Your thoughts, stored locally</div></div>
+          <span class="pill">PRIVATE TO THIS BROWSER</span>
+        </div>
+        <textarea class="text-area note-area" id="note-input" maxlength="10000" placeholder="Capture an idea, reminder, or plan..."></textarea>
+        <div class="note-actions">
+          <span class="note-status" id="note-status">Auto-save enabled</span>
+          <div style="display:flex;gap:7px">
+            <button class="secondary" id="note-clear">Clear</button>
+            <button class="primary" id="note-save">Save note</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card span-7" id="console">
+        <div class="card-head">
+          <div><div class="card-title">COMMAND CONSOLE</div><div class="card-sub">Type a command and press Enter</div></div>
+          <span class="pill">NEXUS SHELL</span>
+        </div>
+        <div class="console" id="console-output" role="log" aria-live="polite">
+          <div class="log-line"><span class="log-time">[BOOT]</span> Nexus command interface initialized.</div>
+          <div class="log-line"><span class="log-time">[INFO]</span> Type <span class="log-cmd">help</span> to list available commands.</div>
+        </div>
+        <form class="console-input-row" id="console-form">
+          <span class="console-prompt">nexus &gt;</span>
+          <input id="console-input" placeholder="help, time, tasks, focus..." autocomplete="off" aria-label="Console command">
+          <button class="primary" type="submit">Run</button>
+        </form>
+      </section>
+
+      <section class="card span-5" id="activity">
+        <div class="card-head">
+          <div><div class="card-title">ACTIVITY FEED</div><div class="card-sub">Your recent workspace events</div></div>
+          <button class="secondary" id="clear-activity" style="font-size:10px;padding:7px">Clear</button>
+        </div>
+        <div class="activity-list" id="activity-list"></div>
+      </section>
+
+      <section class="card span-12">
+        <div class="card-head">
+          <div><div class="card-title">QUICK ACCESS</div><div class="card-sub">Jump directly into your workspace</div></div>
+          <span class="pill">SHORTCUTS</span>
+        </div>
+        <div class="shortcut-grid">
+          <button class="shortcut" data-jump="assistant"><div class="shortcut-icon">✧</div><strong>Ask Nexus</strong><span>Explore commands and get a response</span></button>
+          <button class="shortcut" data-jump="tasks"><div class="shortcut-icon">☑</div><strong>Plan your day</strong><span>Add and track your tasks</span></button>
+          <button class="shortcut" data-jump="focus"><div class="shortcut-icon">◷</div><strong>Start a focus session</strong><span>Set a timer for deep work</span></button>
+          <button class="shortcut" data-jump="console"><div class="shortcut-icon">⌘</div><strong>Open the console</strong><span>Run built-in commands</span></button>
+        </div>
+      </section>
+    </div>
+
+    <footer class="footer">
+      <span>NEXUS COMMAND CENTER · PERSONAL WORKSPACE</span>
+      <span>CLIENT-SIDE MODE · NO ACCOUNT REQUIRED</span>
+    </footer>
+  </main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+
+// ---------- Safe local storage ----------
+const STORE_KEY = "nexus-command-center-v1";
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch (error) {
+    console.warn("Could not read saved data", error);
+    return {};
+  }
+}
+const initialData = loadData();
+
+let tasks = Array.isArray(initialData.tasks) ? initialData.tasks : [];
+let note = typeof initialData.note === "string" ? initialData.note : "";
+let isLight = initialData.isLight === true;
+let activities = Array.isArray(initialData.activities) ? initialData.activities : [];
+
+function persist() {
+  try {
+    localStorage.setItem(STORE_KEY, JSON.stringify({
+      tasks, note, isLight, activities: activities.slice(0, 25)
+    }));
+    document.getElementById("storage-status").textContent = "Persistence enabled";
+  } catch (error) {
+    document.getElementById("storage-status").textContent = "Storage unavailable";
+  }
+}
+
+// ---------- Helpers ----------
+const $ = id => document.getElementById(id);
+let toastTimeout;
+
+function toast(message) {
+  const el = $("toast");
+  el.textContent = message;
+  el.classList.add("show");
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => el.classList.remove("show"), 2600);
+}
+function nowTime() {
+  return new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit",second:"2-digit"});
+}
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, ch => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  })[ch]);
+}
+function logActivity(message, icon = "✧") {
+  activities.unshift({message, icon, time:nowTime()});
+  activities = activities.slice(0, 25);
+  renderActivity();
+  persist();
+}
+function consoleLine(message, type = "normal") {
+  const output = $("console-output");
+  const row = document.createElement("div");
+  row.className = "log-line";
+  const time = document.createElement("span");
+  time.className = "log-time";
+  time.textContent = "[" + nowTime() + "] ";
+  row.appendChild(time);
+  const content = document.createElement("span");
+  if (type === "ok") content.className = "log-ok";
+  if (type === "cmd") content.className = "log-cmd";
+  content.textContent = message;
+  row.appendChild(content);
+  output.appendChild(row);
+  while (output.children.length > 60) output.removeChild(output.firstChild);
+  output.scrollTop = output.scrollHeight;
+}
+
+// ---------- Clock ----------
+function updateClock() {
+  const now = new Date();
+  $("clock").textContent = now.toLocaleTimeString([], {
+    hour:"2-digit", minute:"2-digit", second:"2-digit", hour12:false
+  });
+  $("date").textContent = now.toLocaleDateString([], {
+    weekday:"long", day:"numeric", month:"long", year:"numeric"
+  });
+  const hour = now.getHours();
+  $("greeting").textContent =
+    hour < 12 ? "Good morning." :
+    hour < 17 ? "Good afternoon." :
+    hour < 21 ? "Good evening." : "Welcome back.";
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+// ---------- Theme ----------
+function applyTheme() {
+  document.body.classList.toggle("light", isLight);
+  $("theme-btn").textContent = isLight ? "☾" : "☼";
+  persist();
+}
+$("theme-btn").addEventListener("click", () => {
+  isLight = !isLight;
+  applyTheme();
+  toast(isLight ? "Light theme enabled" : "Dark theme enabled");
+});
+applyTheme();
+
+// ---------- Navigation ----------
+function jumpTo(id) {
+  const target = $(id);
+  if (!target) return;
+  target.scrollIntoView({behavior:"smooth", block:"start"});
+  document.querySelectorAll(".nav-button").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.target === id);
+  });
+}
+document.querySelectorAll("[data-target]").forEach(btn => {
+  btn.addEventListener("click", () => jumpTo(btn.dataset.target));
+});
+document.querySelectorAll("[data-jump]").forEach(btn => {
+  btn.addEventListener("click", () => jumpTo(btn.dataset.jump));
+});
+
+// ---------- Task manager ----------
+function renderTasks() {
+  const list = $("task-list");
+  list.replaceChildren();
+
+  const completed = tasks.filter(task => task.done).length;
+  $("total-tasks").textContent = tasks.length;
+  $("done-tasks").textContent = completed;
+  $("left-tasks").textContent = tasks.length - completed;
+  $("task-count-pill").textContent = tasks.length + (tasks.length === 1 ? " TASK" : " TASKS");
+
+  if (!tasks.length) {
+    const empty = document.createElement("div");
+    empty.className = "empty-state";
+    empty.textContent = "No tasks yet. Add your first task above.";
+    list.appendChild(empty);
+    return;
+  }
+
+  tasks.forEach(task => {
+    const row = document.createElement("div");
+    row.className = "task-item" + (task.done ? " done" : "");
+
+    const check = document.createElement("input");
+    check.type = "checkbox";
+    check.className = "task-check";
+    check.checked = !!task.done;
+    check.setAttribute("aria-label", "Mark task complete");
+    check.addEventListener("change", () => {
+      task.done = check.checked;
+      renderTasks();
+      persist();
+      logActivity(task.done ? "Task completed: " + task.text : "Task reopened: " + task.text, task.done ? "✓" : "↺");
+    });
+
+    const text = document.createElement("div");
+    text.className = "task-text";
+    text.textContent = task.text;
+
+    const remove = document.createElement("button");
+    remove.className = "small-action";
+    remove.textContent = "✕";
+    remove.title = "Delete task";
+    remove.setAttribute("aria-label", "Delete task");
+    remove.addEventListener("click", () => {
+      tasks = tasks.filter(item => item.id !== task.id);
+      renderTasks();
+      persist();
+      logActivity("Task deleted: " + task.text, "−");
+    });
+
+    row.append(check, text, remove);
+    list.appendChild(row);
+  });
+}
+
+function addTask(text) {
+  const cleaned = String(text).trim().slice(0, 180);
+  if (!cleaned) return false;
+  if (tasks.length >= 200) {
+    toast("Task limit reached. Remove some tasks first.");
+    return false;
+  }
+  tasks.unshift({id:Date.now() + Math.random(), text:cleaned, done:false});
+  renderTasks();
+  persist();
+  logActivity("New task added: " + cleaned, "+");
+  return true;
+}
+$("task-form").addEventListener("submit", event => {
+  event.preventDefault();
+  if (addTask($("task-input").value)) {
+    $("task-input").value = "";
+    toast("Task added");
+  }
+});
+renderTasks();
+
+// ---------- Notes ----------
+$("note-input").value = note;
+let noteSaveTimeout;
+$("note-input").addEventListener("input", () => {
+  $("note-status").textContent = "Unsaved changes...";
+  clearTimeout(noteSaveTimeout);
+  noteSaveTimeout = setTimeout(saveNote, 450);
+});
+function saveNote() {
+  note = $("note-input").value;
+  persist();
+  $("note-status").textContent = "Saved locally at " + nowTime();
+}
+$("note-save").addEventListener("click", () => {
+  clearTimeout(noteSaveTimeout);
+  saveNote();
+  logActivity("Quick notes saved", "▤");
+  toast("Note saved on this browser");
+});
+$("note-clear").addEventListener("click", () => {
+  if (!$("note-input").value) return;
+  if (!confirm("Clear the entire note?")) return;
+  $("note-input").value = "";
+  saveNote();
+  logActivity("Quick notes cleared", "▤");
+  toast("Note cleared");
+});
+
+// ---------- Focus timer ----------
+let timerDuration = 25 * 60;
+let timerRemaining = timerDuration;
+let timerInterval = null;
+let timerEndAt = null;
+let timerRunning = false;
+
+function renderTimer() {
+  const minutes = Math.floor(timerRemaining / 60);
+  const seconds = timerRemaining % 60;
+  $("timer-display").textContent =
+    String(minutes).padStart(2,"0") + ":" + String(seconds).padStart(2,"0");
+
+  const progress = timerDuration ? timerRemaining / timerDuration : 0;
+  $("timer-ring").style.setProperty("--progress", (progress * 100) + "%");
+  $("timer-start").disabled = timerRunning;
+  $("timer-pause").disabled = !timerRunning;
+  $("timer-caption").textContent = timerRunning ? "FOCUS IN PROGRESS" :
+    timerRemaining === 0 ? "SESSION COMPLETE" : "READY TO FOCUS";
+  $("timer-start").textContent = timerRemaining === 0 ? "▶ Start again" : "▶ Start";
+}
+function stopTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = null;
+  timerRunning = false;
+  timerEndAt = null;
+}
+function finishTimer() {
+  stopTimer();
+  timerRemaining = 0;
+  renderTimer();
+  logActivity("Focus session completed", "◷");
+  toast("Focus session complete! Take a short break.");
+  try {
+    if ("Notification" in window && Notification.permission === "granted") {
+      new Notification("NEXUS Focus", {body:"Your focus session is complete."});
+    }
+  } catch (_) {}
+}
+function startTimer() {
+  if (timerRunning) return;
+  if (timerRemaining <= 0) timerRemaining = timerDuration;
+  timerRunning = true;
+  timerEndAt = Date.now() + timerRemaining * 1000;
+  timerInterval = setInterval(() => {
+    timerRemaining = Math.max(0, Math.ceil((timerEndAt - Date.now()) / 1000));
+    if (timerRemaining <= 0) {
+      finishTimer();
+    } else {
+      renderTimer();
+    }
+  }, 250);
+  renderTimer();
+  logActivity("Focus timer started", "◷");
+}
+function pauseTimer() {
+  if (!timerRunning) return;
+  timerRemaining = Math.max(0, Math.ceil((timerEndAt - Date.now()) / 1000));
+  stopTimer();
+  renderTimer();
+  logActivity("Focus timer paused", "Ⅱ");
+}
+function resetTimer() {
+  stopTimer();
+  timerRemaining = timerDuration;
+  renderTimer();
+  logActivity("Focus timer reset", "↺");
+}
+function setTimer(minutes) {
+  stopTimer();
+  timerDuration = minutes * 60;
+  timerRemaining = timerDuration;
+  renderTimer();
+  toast(minutes + "-minute timer selected");
+  logActivity("Focus duration set to " + minutes + " minutes", "◷");
+}
+$("timer-start").addEventListener("click", startTimer);
+$("timer-pause").addEventListener("click", pauseTimer);
+$("timer-reset").addEventListener("click", resetTimer);
+document.querySelectorAll("[data-minutes]").forEach(btn => {
+  btn.addEventListener("click", () => setTimer(Number(btn.dataset.minutes)));
+});
+renderTimer();
+
+// ---------- Activity feed ----------
+function renderActivity() {
+  const list = $("activity-list");
+  list.replaceChildren();
+
+  if (!activities.length) {
+    const empty = document.createElement("div");
+    empty.className = "empty-state";
+    empty.textContent = "Your workspace activity will appear here.";
+    list.appendChild(empty);
+    return;
+  }
+
+  activities.slice(0, 15).forEach(item => {
+    const row = document.createElement("div");
+    row.className = "activity-item";
+    const icon = document.createElement("div");
+    icon.className = "activity-icon";
+    icon.textContent = item.icon || "✧";
+    const content = document.createElement("div");
+    const message = document.createElement("div");
+    message.className = "activity-text";
+    message.textContent = item.message;
+    const time = document.createElement("div");
+    time.className = "activity-time";
+    time.textContent = item.time || "";
+    content.append(message, time);
+    row.append(icon, content);
+    list.appendChild(row);
+  });
+}
+$("clear-activity").addEventListener("click", () => {
+  activities = [];
+  renderActivity();
+  persist();
+  toast("Activity feed cleared");
+});
+renderActivity();
+
+// ---------- Built-in command engine ----------
+function runCommand(raw) {
+  const input = String(raw || "").trim();
+  if (!input) return "Enter a command first.";
+  const lower = input.toLowerCase();
+  const parts = lower.split(/\s+/);
+  const cmd = parts[0];
+
+  switch (cmd) {
+    case "help":
+      return "Commands: help, time, date, tasks, add <task>, done <task number>, focus, pause, reset, timer <minutes>, note <text>, theme, clear.";
+    case "time":
+      return "Current local time: " + nowTime();
+    case "date":
+      return new Date().toLocaleDateString([], {weekday:"long",day:"numeric",month:"long",year:"numeric"});
+    case "tasks":
+      return tasks.length
+        ? tasks.map((t,i) => (i+1)+". ["+(t.done?"x":" ")+"] "+t.text).join(" | ")
+        : "No tasks yet. Use: add <your task>";
+    case "add": {
+      const taskText = input.slice(3).trim();
+      return taskText && addTask(taskText) ? "Task added: " + taskText : "Usage: add Finish my assignment";
+    }
+    case "done": {
+      const number = Number(parts[1]);
+      if (!Number.isInteger(number) || number < 1 || number > tasks.length) return "Usage: done <task number>. Check task numbers with 'tasks'.";
+      tasks[number-1].done = true;
+      renderTasks();
+      persist();
+      logActivity("Task completed: " + tasks[number-1].text, "✓");
+      return "Marked task " + number + " complete.";
+    }
+    case "focus":
+      startTimer();
+      return "Focus timer started.";
+    case "pause":
+      pauseTimer();
+      return "Timer paused if it was running.";
+    case "reset":
+      resetTimer();
+      return "Timer reset.";
+    case "timer": {
+      const mins = Number(parts[1]);
+      if (!Number.isInteger(mins) || mins < 1 || mins > 180) return "Usage: timer <1-180 minutes>";
+      setTimer(mins);
+      return "Timer set to " + mins + " minutes.";
+    }
+    case "note": {
+      const noteText = input.slice(4).trim();
+      if (!noteText) return "Usage: note Remember to submit the project";
+      $("note-input").value = noteText;
+      saveNote();
+      logActivity("Note updated from command console", "▤");
+      return "Note saved.";
+    }
+    case "theme":
+      isLight = !isLight;
+      applyTheme();
+      return "Theme changed.";
+    case "clear":
+      $("console-output").replaceChildren();
+      return "Console cleared.";
+    default:
+      return "Unknown command: " + cmd + ". Type 'help' for available commands.";
+  }
+}
+$("console-form").addEventListener("submit", event => {
+  event.preventDefault();
+  const input = $("console-input");
+  const raw = input.value.trim();
+  if (!raw) return;
+  consoleLine("nexus > " + raw, "cmd");
+  const result = runCommand(raw);
+  consoleLine(result, "ok");
+  input.value = "";
+});
+
+// ---------- Assistant response engine ----------
+function respond(message) {
+  const original = String(message || "").trim();
+  const text = original.toLowerCase();
+  if (!original) return "Type a question or try one of the quick prompts.";
+
+  if (/^(hi|hello|hey|namaste|hii)\b/.test(text)) {
+    return "Hello! I'm Nexus. I can help you manage tasks, run a focus timer, save notes, and explore this command center. What would you like to do?";
+  }
+  if (text.includes("what can you do") || text.includes("help") || text.includes("commands")) {
+    return "I can manage your task list, start or pause the focus timer, save quick notes, switch themes, and tell you the current date and time. Try: 'add revise JavaScript', 'start focus', 'show my tasks', or use the Command Console.";
+  }
+  if (text.includes("motivat") || text.includes("inspire")) {
+    return "You don't need to finish everything today. Pick one meaningful task, give it your full attention, and take the next small step. Progress beats perfection.";
+  }
+  if (text.includes("time") && !text.includes("timer")) {
+    return "Your current local time is " + nowTime() + ".";
+  }
+  if (text.includes("date") || text.includes("day today") || text.includes("today")) {
+    return "Today is " + new Date().toLocaleDateString([], {weekday:"long",day:"numeric",month:"long",year:"numeric"}) + ".";
+  }
+  if (text.includes("show my tasks") || text.includes("list tasks") || text === "tasks" || text.includes("my tasks")) {
+    if (!tasks.length) return "Your task list is empty. Add one from Task Control or type 'add <task>' in the command console.";
+    const pending = tasks.filter(t => !t.done);
+    return "You have " + tasks.length + " total tasks, " + tasks.filter(t => t.done).length + " completed, and " + pending.length + " remaining. " +
+      (pending.length ? "Next up: " + pending.slice(0,3).map(t => t.text).join("; ") : "Everything is completed. Great work!");
+  }
+  if (text.includes("start focus") || text.includes("start timer") || text.includes("focus session")) {
+    startTimer();
+    return "Your focus session is running. Put distractions aside and work on one task at a time.";
+  }
+  if (text.includes("pause timer") || text === "pause") {
+    pauseTimer();
+    return "Your focus timer is paused. You can resume whenever you're ready.";
+  }
+  if (text.includes("reset timer")) {
+    resetTimer();
+    return "Your timer has been reset to its selected duration.";
+  }
+  if (text.includes("open notes") || text.includes("my notes")) {
+    jumpTo("notes");
+    return "I've taken you to Quick Notes. Write an idea and save it locally.";
+  }
+  if (text.includes("open console")) {
+    jumpTo("console");
+    return "Command Console is ready. Type 'help' to see the available commands.";
+  }
+  if (text.startsWith("add task ") || text.startsWith("add a task ")) {
+    const task = original.replace(/^add (a )?task /i,"").trim();
+    if (addTask(task)) return "Added to your task list: " + task;
+    return "Please enter a task description.";
+  }
+  if (text.startsWith("remember ")) {
+    const noteText = original.slice(9).trim();
+    if (noteText) {
+      $("note-input").value = noteText;
+      saveNote();
+      logActivity("Note saved through assistant", "▤");
+      return "I've saved that text to Quick Notes in this browser: " + noteText;
+    }
+  }
+  if (text.includes("theme") || text.includes("dark mode") || text.includes("light mode")) {
+    isLight = !isLight;
+    applyTheme();
+    return "Switched the interface theme.";
+  }
+  if (text.includes("how many") && text.includes("task")) {
+    return "You have " + tasks.length + " tasks in total, with " + tasks.filter(t=>t.done).length + " completed.";
+  }
+  if (text.includes("weather")) {
+    return "This demo doesn't use a live weather API yet. You can connect a weather service later to add real forecasts.";
+  }
+  if (text.includes("ai") || text.includes("artificial intelligence")) {
+    return "This version uses a local rule-based response engine, not a remote generative AI model. A backend and AI API can be connected for genuine AI conversations.";
+  }
+  return "I understood your message, but I don't have a built-in answer for that yet. Try asking about your tasks, time, focus timer, notes, or available commands. You can also type 'help' in the Command Console.";
+}
+
+$("assistant-form").addEventListener("submit", event => {
+  event.preventDefault();
+  const input = $("assistant-input");
+  const message = input.value.trim();
+  if (!message) return;
+  $("assistant-response").textContent = "Thinking...";
+  $("assistant-status").textContent = "● PROCESSING REQUEST";
+  setTimeout(() => {
+    $("assistant-response").textContent = respond(message);
+    $("assistant-status").textContent = "● READY TO ASSIST";
+    logActivity("Assistant query: " + message.slice(0,80), "✧");
+  }, 180);
+  input.value = "";
+});
+document.querySelectorAll("[data-prompt]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    $("assistant-input").value = btn.dataset.prompt;
+    $("assistant-form").requestSubmit();
+  });
+});
+
+// ---------- Optional voice recognition ----------
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition = null;
+let listening = false;
+
+function startVoice() {
+  if (!SpeechRecognition) {
+    toast("Voice recognition isn't supported here. Try Chrome or Edge.");
+    $("assistant-response").textContent = "Voice recognition isn't available in this browser. You can still type commands in the assistant or console.";
+    return;
+  }
+  if (listening && recognition) {
+    try { recognition.stop(); } catch (_) {}
+    return;
+  }
+
+  recognition = new SpeechRecognition();
+  recognition.lang = "en-IN";
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+  recognition.onstart = () => {
+    listening = true;
+    $("voice-top").classList.add("voice-listening");
+    $("assistant-status").textContent = "● LISTENING...";
+    toast("Listening... Speak a command");
+  };
+  recognition.onresult = event => {
+    const transcript = event.results[0][0].transcript;
+    $("assistant-input").value = transcript;
+    $("assistant-form").requestSubmit();
+  };
+  recognition.onerror = event => {
+    toast("Voice error: " + event.error);
+  };
+  recognition.onend = () => {
+    listening = false;
+    $("voice-top").classList.remove("voice-listening");
+    $("assistant-status").textContent = "● READY TO ASSIST";
+  };
+  try {
+    recognition.start();
+  } catch (error) {
+    toast("Couldn't start voice recognition. Please try again.");
+  }
+}
+$("voice-top").addEventListener("click", startVoice);
+
+// ---------- Keyboard shortcuts ----------
+document.addEventListener("keydown", event => {
+  const tag = document.activeElement && document.activeElement.tagName;
+  const editing = ["INPUT","TEXTAREA","SELECT"].includes(tag);
+
+  if (event.altKey && event.key.toLowerCase() === "k") {
+    event.preventDefault();
+    $("assistant-input").focus();
+  }
+  if (event.altKey && event.key.toLowerCase() === "c") {
+    event.preventDefault();
+    jumpTo("console");
+    $("console-input").focus();
+  }
+  if (event.key === "Escape" && listening && recognition) {
+    try { recognition.stop(); } catch (_) {}
+  }
+});
+
+// ---------- Boot ----------
+consoleLine("Workspace loaded. Tasks: " + tasks.length + ". Notes: " + (note ? "available" : "empty") + ".", "ok");
+consoleLine("Tip: Alt + K focuses the assistant; Alt + C opens the console.", "normal");
+</script>
+</body>
+</html>

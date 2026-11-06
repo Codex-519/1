@@ -1,0 +1,1095 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EARTH 3D — Planet Explorer</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --cyan: #67e8f9;
+  --blue: #648bff;
+  --panel: rgba(6, 15, 34, .82);
+  --border: rgba(130, 177, 255, .2);
+  --muted: #91a5c8;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #020611;
+  color: #eef5ff;
+  font-family: Inter, sans-serif;
+}
+button, input { font: inherit; }
+button { cursor: pointer; color: inherit; }
+#world {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  outline: none;
+}
+.overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 30%, #02061112 68%, #020611b8 115%);
+}
+header {
+  height: 76px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 25px;
+  background: linear-gradient(#030816e8, #03081600);
+  border-bottom: 1px solid #8bb9ff12;
+}
+.brand { display:flex; align-items:center; gap:12px; }
+.logo {
+  width: 39px;
+  height: 39px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #67e8f966;
+  color: var(--cyan);
+  border-radius: 12px;
+  font-size: 21px;
+  box-shadow: 0 0 25px #38c8ff19;
+}
+.brand-name {
+  font-family: Orbitron, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+}
+.brand-sub {
+  color: var(--muted);
+  font-size: 8px;
+  letter-spacing: 2px;
+  margin-top: 4px;
+}
+.header-right { display:flex; gap:9px; align-items:center; }
+.pill {
+  border: 1px solid var(--border);
+  border-radius: 30px;
+  padding: 9px 12px;
+  background: #0a17318c;
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+.dot {
+  width: 6px;
+  height: 6px;
+  display: inline-block;
+  background: #6dffb2;
+  border-radius: 50%;
+  margin-right: 7px;
+  box-shadow: 0 0 8px #6dffb2;
+}
+.panel {
+  position: fixed;
+  z-index: 4;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 17px;
+  backdrop-filter: blur(19px);
+  -webkit-backdrop-filter: blur(19px);
+  box-shadow: 0 15px 50px #0004;
+}
+.left {
+  left: 20px;
+  top: 97px;
+  bottom: 87px;
+  width: 242px;
+  padding: 17px;
+  display: flex;
+  flex-direction: column;
+}
+.right {
+  right: 20px;
+  top: 97px;
+  width: 268px;
+  padding: 18px;
+}
+.eyebrow {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--cyan);
+  letter-spacing: 1.8px;
+}
+.heading {
+  font-family: Orbitron, sans-serif;
+  font-size: 18px;
+  letter-spacing: .7px;
+  margin: 10px 0 5px;
+}
+.muted {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.6;
+}
+.search {
+  margin: 16px 0 12px;
+  width: 100%;
+  border: 1px solid var(--border);
+  background: #030b1b;
+  color: white;
+  padding: 12px;
+  border-radius: 9px;
+  font-size: 11px;
+  outline: none;
+}
+.search:focus { border-color: #67e8f9a0; }
+.place-list {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: #304568 transparent;
+}
+.place {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  padding: 10px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  transition: .2s;
+}
+.place:hover { background:#a9c9ff0c; }
+.place.active {
+  background: #518eff18;
+  border-color: #7fb8ff4d;
+}
+.flag { font-size: 20px; }
+.place-name { font-size: 11px; font-weight: 600; }
+.place-country { font-size: 9px; color: var(--muted); margin-top:4px; }
+.place-arrow { margin-left:auto; color:#7c91b8; }
+.left-footer {
+  margin-top: auto;
+  border-top: 1px solid #a6c3ff18;
+  padding-top: 13px;
+}
+.small-label {
+  color: var(--muted);
+  font-size: 9px;
+  letter-spacing: 1.2px;
+}
+.setting {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  font-size:10px;
+  margin-top:12px;
+  color:#d4e0f8;
+}
+input[type=range] { width:100px; accent-color:var(--cyan); }
+input[type=checkbox] { accent-color:var(--cyan); }
+.earth-preview {
+  position: relative;
+  height: 116px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.preview-globe {
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse at 28% 25%, #8af1ff 0%, #2588db 27%, #07519c 55%, #04132f 100%);
+  box-shadow: inset -15px -8px 22px #0009, 0 0 34px #298cff60;
+}
+.preview-orbit {
+  width: 135px;
+  height: 44px;
+  border: 1px solid #7cb6ff55;
+  position: absolute;
+  border-radius: 50%;
+  transform: rotate(-22deg);
+}
+.coords {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:14px;
+}
+.stat {
+  padding:11px;
+  border-radius:10px;
+  background:#ffffff07;
+  border:1px solid #9fbaff12;
+  min-width:0;
+}
+.stat-label { font-size:8px; color:var(--muted); margin-bottom:7px; }
+.stat-value {
+  font-family:Orbitron,sans-serif;
+  font-size:11px;
+  overflow-wrap:anywhere;
+}
+.location-description {
+  font-size:10px;
+  line-height:1.7;
+  color:#aabbd8;
+  margin-top:12px;
+  min-height:51px;
+}
+.actions { display:flex; gap:7px; margin-top:14px; }
+.action {
+  flex:1;
+  padding:10px 6px;
+  border-radius:9px;
+  border:1px solid #6e9fff48;
+  background:linear-gradient(120deg,#467eff24,#67e8f910);
+  font-size:9px;
+  letter-spacing:.5px;
+}
+.action:hover { border-color:#67e8f9b0; }
+.bottom {
+  position:fixed;
+  z-index:4;
+  bottom:17px;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:5px;
+  width:min(535px, calc(100% - 550px));
+  min-width:300px;
+  padding:9px;
+  border:1px solid var(--border);
+  background:#061126dc;
+  backdrop-filter:blur(18px);
+  border-radius:14px;
+}
+.tool {
+  background:transparent;
+  border:1px solid transparent;
+  color:#c0d1ee;
+  border-radius:9px;
+  padding:8px;
+  min-width:40px;
+  font-size:14px;
+}
+.tool:hover, .tool.active {
+  background:#86aaff15;
+  border-color:#87b5ff35;
+  color:var(--cyan);
+}
+.tool span { display:block; font-size:7px; letter-spacing:.5px; margin-top:4px; }
+.hint {
+  position:fixed;
+  bottom:29px;
+  left:270px;
+  z-index:3;
+  color:#9fb5d577;
+  font-size:9px;
+  pointer-events:none;
+}
+.toast {
+  position:fixed;
+  z-index:10;
+  top:87px;
+  left:50%;
+  transform:translate(-50%,-8px);
+  opacity:0;
+  pointer-events:none;
+  padding:11px 16px;
+  border:1px solid #67a8ff55;
+  background:#091832ef;
+  border-radius:10px;
+  color:#d6f6ff;
+  font-size:10px;
+  transition:.25s;
+}
+.toast.show { opacity:1; transform:translate(-50%,0); }
+#loading {
+  position:fixed;
+  inset:0;
+  z-index:20;
+  background:#020611;
+  display:grid;
+  place-items:center;
+  transition:opacity .7s;
+}
+.loader { text-align:center; }
+.spinner {
+  width:50px;
+  height:50px;
+  margin:0 auto 19px;
+  border:1px solid var(--cyan);
+  border-top-color:transparent;
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+  box-shadow:0 0 25px #67e8f91c;
+}
+.loader-title { font:12px Orbitron,sans-serif; letter-spacing:4px; }
+.loader-sub { color:var(--muted); font-size:10px; margin-top:10px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+@media(max-width:900px) {
+  .left { width:195px; left:10px; }
+  .right { width:225px; right:10px; padding:14px; }
+  .bottom { width:360px; }
+  .hint { display:none; }
+}
+@media(max-width:620px) {
+  header { height:60px; padding:0 12px; }
+  .logo { width:32px; height:32px; }
+  .brand-name { font-size:13px; letter-spacing:1.7px; }
+  .brand-sub { font-size:7px; letter-spacing:1px; }
+  .pill { padding:7px 8px; font-size:7px; }
+  .header-right { gap:4px; }
+  .left {
+    top:auto;
+    left:7px;
+    right:7px;
+    bottom:67px;
+    width:auto;
+    height:77px;
+    padding:6px;
+    border-radius:12px;
+  }
+  .left > .eyebrow, .left > .muted, .left-footer { display:none; }
+  .search { display:none; }
+  .place-list {
+    flex-direction:row;
+    overflow-x:auto;
+    overflow-y:hidden;
+    height:100%;
+  }
+  .place {
+    flex:0 0 auto;
+    flex-direction:column;
+    justify-content:center;
+    gap:4px;
+    padding:5px 10px;
+    min-width:68px;
+  }
+  .flag { font-size:20px; }
+  .place-name { font-size:9px; }
+  .place-country, .place-arrow { display:none; }
+  .right {
+    top:72px;
+    right:7px;
+    width:166px;
+    padding:11px;
+    border-radius:13px;
+  }
+  .heading { font-size:16px; margin:7px 0 3px; }
+  .earth-preview { height:70px; }
+  .preview-globe { width:48px; height:48px; }
+  .preview-orbit { width:85px; height:28px; }
+  .coords { gap:5px; margin-top:8px; }
+  .stat { padding:7px; }
+  .stat-label { font-size:7px; margin-bottom:5px; }
+  .stat-value { font-size:9px; }
+  .location-description { font-size:9px; line-height:1.5; min-height:48px; margin-top:8px; }
+  .actions { flex-direction:column; margin-top:9px; gap:5px; }
+  .action { padding:8px 4px; font-size:8px; }
+  .bottom {
+    left:7px;
+    right:7px;
+    bottom:7px;
+    transform:none;
+    width:auto;
+    min-width:0;
+    padding:5px;
+    gap:2px;
+  }
+  .tool { min-width:31px; padding:6px 4px; font-size:12px; }
+  .tool span { font-size:6px; }
+  .toast { top:64px; max-width:90vw; text-align:center; }
+}
+@media(max-width:360px) {
+  .right { width:145px; }
+  .brand-sub { display:none; }
+  .pill { font-size:6px; }
+  .place { min-width:58px; }
+}
+</style>
+</head>
+
+<body>
+<canvas id="world"></canvas>
+<div class="overlay"></div>
+
+<div id="loading">
+  <div class="loader">
+    <div class="spinner"></div>
+    <div class="loader-title">INITIALIZING EARTH</div>
+    <div class="loader-sub">Connecting to planetary systems...</div>
+  </div>
+</div>
+
+<header>
+  <div class="brand">
+    <div class="logo">◎</div>
+    <div>
+      <div class="brand-name">EARTH 3D</div>
+      <div class="brand-sub">PLANET EXPLORER</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="pill"><span class="dot"></span>LIVE SIMULATION</div>
+    <div class="pill" id="utc">UTC --:--</div>
+  </div>
+</header>
+
+<aside class="panel left">
+  <div class="eyebrow">EXPLORE THE WORLD</div>
+  <div class="heading">Destinations</div>
+  <div class="muted">Select a location to explore its coordinates.</div>
+  <input class="search" id="search" placeholder="⌕  Search locations...">
+  <div class="place-list" id="placeList"></div>
+  <div class="left-footer">
+    <div class="small-label">GLOBE SETTINGS</div>
+    <div class="setting">
+      <span>Rotation speed</span>
+      <span id="speedValue">1.0×</span>
+    </div>
+    <input id="speed" type="range" min="0" max="3" value="1" step=".1" style="width:100%;margin-top:10px">
+    <div class="setting">
+      <span>Auto rotate</span>
+      <input type="checkbox" id="autoRotate" checked>
+    </div>
+  </div>
+</aside>
+
+<aside class="panel right">
+  <div class="eyebrow">PLANETARY OVERVIEW</div>
+  <div class="heading" id="locationName">Earth</div>
+  <div class="muted" id="locationType">Our home planet</div>
+
+  <div class="earth-preview">
+    <div class="preview-orbit"></div>
+    <div class="preview-globe"></div>
+  </div>
+
+  <div class="muted" id="locationDescription">
+    Explore the third planet from the Sun.
+  </div>
+
+  <div class="coords">
+    <div class="stat">
+      <div class="stat-label">LATITUDE</div>
+      <div class="stat-value" id="lat">0.000°</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">LONGITUDE</div>
+      <div class="stat-value" id="lon">0.000°</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">DIAMETER</div>
+      <div class="stat-value">12,742 km</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">DAY LENGTH</div>
+      <div class="stat-value">24 HOURS</div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="action" id="focus">◎ FOCUS LOCATION</button>
+    <button class="action" id="mapBtn">↗ OPEN MAP</button>
+  </div>
+</aside>
+
+<div class="hint">DRAG TO ROTATE · SCROLL TO ZOOM · SELECT A MARKER</div>
+
+<nav class="bottom">
+  <button class="tool" id="home">⌂<span>RESET</span></button>
+  <button class="tool active" id="rotate">⟳<span>ROTATE</span></button>
+  <button class="tool active" id="markers">⌖<span>MARKERS</span></button>
+  <button class="tool active" id="atmosphere">◉<span>GLOW</span></button>
+  <button class="tool" id="zoomIn">＋<span>ZOOM IN</span></button>
+  <button class="tool" id="zoomOut">−<span>ZOOM OUT</span></button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/controls/OrbitControls.js"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const $ = id => document.getElementById(id);
+
+const canvas = $('world');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x020611);
+
+const camera = new THREE.PerspectiveCamera(
+  45, innerWidth / innerHeight, .1, 1000
+);
+camera.position.set(0, 1.5, 9);
+
+const renderer = new THREE.WebGLRenderer({
+  canvas, antialias: true, alpha: false
+});
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.25;
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = .06;
+controls.minDistance = 3.3;
+controls.maxDistance = 20;
+controls.autoRotate = true;
+controls.autoRotateSpeed = .55;
+controls.target.set(0, 0, 0);
+
+scene.add(new THREE.AmbientLight(0x91b8ff, 1.35));
+
+const sunLight = new THREE.DirectionalLight(0xffffff, 2.7);
+sunLight.position.set(-5, 2, 8);
+scene.add(sunLight);
+
+const fillLight = new THREE.DirectionalLight(0x247bff, 1.1);
+fillLight.position.set(5, -2, -6);
+scene.add(fillLight);
+
+// Stars surrounding the Earth
+function makeStars(count, radius) {
+  const positions = new Float32Array(count * 3);
+  for (let i = 0; i < count; i++) {
+    const y = Math.random() * 2 - 1;
+    const a = Math.random() * Math.PI * 2;
+    const r = radius * Math.sqrt(1 - y * y);
+    positions[i * 3] = Math.cos(a) * r;
+    positions[i * 3 + 1] = y * radius;
+    positions[i * 3 + 2] = Math.sin(a) * r;
+  }
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+  const mat = new THREE.PointsMaterial({
+    color: 0xd5e8ff,
+    size: .85,
+    sizeAttenuation: false,
+    transparent: true,
+    opacity: .9
+  });
+
+  const points = new THREE.Points(geo, mat);
+  scene.add(points);
+  return points;
+}
+
+const stars = makeStars(6500, 150);
+
+// Create procedural Earth texture for offline-looking visual fallback.
+function makeEarthTexture() {
+  const c = document.createElement('canvas');
+  c.width = 1024;
+  c.height = 512;
+  const ctx = c.getContext('2d');
+
+  const gradient = ctx.createLinearGradient(0, 0, 0, 512);
+  gradient.addColorStop(0, '#154c91');
+  gradient.addColorStop(.5, '#0875bb');
+  gradient.addColorStop(1, '#09295c');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, 1024, 512);
+
+  // Deterministic continent-like polygon silhouettes.
+  const continents = [
+    [[80,95],[135,58],[188,76],[221,120],[200,155],[173,179],[151,230],[125,218],[107,175],[77,150]],
+    [[178,228],[220,243],[236,287],[214,336],[203,387],[177,420],[162,374],[152,321],[165,278]],
+    [[340,90],[384,66],[422,79],[453,101],[491,92],[516,118],[492,146],[454,151],[432,178],[405,165],[389,139],[359,135]],
+    [[420,184],[460,172],[492,202],[488,245],[468,292],[444,340],[423,309],[408,267],[400,224]],
+    [[526,95],[565,72],[619,82],[660,110],[704,102],[744,129],[780,116],[827,149],[810,177],[770,181],[736,164],[706,193],[671,171],[646,150],[612,161],[583,139],[552,141]],
+    [[580,180],[625,188],[653,230],[637,268],[611,293],[590,263],[570,224]],
+    [[752,298],[788,284],[824,309],[816,339],[785,350],[758,328]],
+    [[852,180],[881,171],[904,194],[894,220],[869,216]]
+  ];
+
+  continents.forEach((poly, i) => {
+    ctx.beginPath();
+    poly.forEach((p, j) => {
+      if (j === 0) ctx.moveTo(p[0], p[1]);
+      else ctx.lineTo(p[0], p[1]);
+    });
+    ctx.closePath();
+    ctx.fillStyle = ['#397e51','#3f8b50','#688b47','#467c48'][i % 4];
+    ctx.fill();
+    ctx.strokeStyle = '#8bb775';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  });
+
+  // Fine ocean texture and clouds
+  for (let i = 0; i < 1600; i++) {
+    const x = Math.random() * 1024;
+    const y = Math.random() * 512;
+    ctx.fillStyle = Math.random() > .5 ? '#8dd9ed' : '#06295c';
+    ctx.globalAlpha = Math.random() * .1;
+    ctx.fillRect(x, y, Math.random() * 8 + 1, Math.random() * 3 + 1);
+  }
+  ctx.globalAlpha = 1;
+
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+const earthGroup = new THREE.Group();
+scene.add(earthGroup);
+
+const earthGeometry = new THREE.SphereGeometry(2.1, 96, 72);
+const earthMaterial = new THREE.MeshStandardMaterial({
+  map: makeEarthTexture(),
+  roughness: .94,
+  metalness: .02
+});
+const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+earthGroup.add(earth);
+
+// Subtle procedural cloud layer
+function makeCloudTexture() {
+  const c = document.createElement('canvas');
+  c.width = 512;
+  c.height = 256;
+  const ctx = c.getContext('2d');
+  ctx.clearRect(0, 0, 512, 256);
+
+  for (let i = 0; i < 450; i++) {
+    const x = Math.random() * 512;
+    const y = Math.random() * 256;
+    const w = 4 + Math.random() * 24;
+    const h = 2 + Math.random() * 8;
+    ctx.fillStyle = '#ffffff';
+    ctx.globalAlpha = .1 + Math.random() * .35;
+    ctx.beginPath();
+    ctx.ellipse(x, y, w, h, Math.random(), 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  return new THREE.CanvasTexture(c);
+}
+
+const clouds = new THREE.Mesh(
+  new THREE.SphereGeometry(2.125, 64, 48),
+  new THREE.MeshStandardMaterial({
+    map: makeCloudTexture(),
+    transparent: true,
+    opacity: .2,
+    depthWrite: false
+  })
+);
+earthGroup.add(clouds);
+
+// Atmospheric shell
+const atmosphere = new THREE.Mesh(
+  new THREE.SphereGeometry(2.19, 64, 48),
+  new THREE.MeshBasicMaterial({
+    color: 0x2c98ff,
+    transparent: true,
+    opacity: .12,
+    side: THREE.BackSide,
+    blending: THREE.AdditiveBlending
+  })
+);
+earthGroup.add(atmosphere);
+
+// Outer atmosphere glow
+const outerGlow = new THREE.Mesh(
+  new THREE.SphereGeometry(2.28, 64, 48),
+  new THREE.MeshBasicMaterial({
+    color: 0x1478ff,
+    transparent: true,
+    opacity: .075,
+    side: THREE.BackSide,
+    blending: THREE.AdditiveBlending
+  })
+);
+earthGroup.add(outerGlow);
+
+// Lat/lon helpers. Sphere mapping matches the marker convention.
+function latLonToVector(lat, lon, radius = 2.15) {
+  const phi = (90 - lat) * Math.PI / 180;
+  const theta = (lon + 180) * Math.PI / 180;
+  return new THREE.Vector3(
+    -radius * Math.sin(phi) * Math.cos(theta),
+    radius * Math.cos(phi),
+    radius * Math.sin(phi) * Math.sin(theta)
+  );
+}
+
+const locations = [
+  {
+    name:'New Delhi', country:'India', flag:'🇮🇳',
+    lat:28.6139, lon:77.2090, type:'Capital city',
+    desc:'India’s capital, known for its historic monuments, government district and vibrant urban culture.'
+  },
+  {
+    name:'Mumbai', country:'India', flag:'🇮🇳',
+    lat:19.0760, lon:72.8777, type:'Coastal metropolis',
+    desc:'A major coastal city and a centre of finance, film, commerce and culture.'
+  },
+  {
+    name:'Kalol', country:'Gujarat, India', flag:'🇮🇳',
+    lat:23.2465, lon:72.4933, type:'City',
+    desc:'A city in Gujarat, India. Coordinates are approximate and are intended for this interactive demonstration.'
+  },
+  {
+    name:'Jodhpur', country:'Rajasthan, India', flag:'🇮🇳',
+    lat:26.2389, lon:73.0243, type:'Historic city',
+    desc:'The Blue City of Rajasthan, famous for Mehrangarh Fort and its desert heritage.'
+  },
+  {
+    name:'London', country:'United Kingdom', flag:'🇬🇧',
+    lat:51.5072, lon:-.1276, type:'Capital city',
+    desc:'A global city on the River Thames, known for its history, museums and cultural landmarks.'
+  },
+  {
+    name:'New York', country:'United States', flag:'🇺🇸',
+    lat:40.7128, lon:-74.0060, type:'Global metropolis',
+    desc:'A major city known for its skyline, arts, diverse communities and international influence.'
+  },
+  {
+    name:'Tokyo', country:'Japan', flag:'🇯🇵',
+    lat:35.6762, lon:139.6503, type:'Capital city',
+    desc:'Japan’s capital, blending advanced technology with traditional neighbourhoods and culture.'
+  },
+  {
+    name:'Sydney', country:'Australia', flag:'🇦🇺',
+    lat:-33.8688, lon:151.2093, type:'Harbour city',
+    desc:'An Australian city known for its harbour, coastal scenery and distinctive architecture.'
+  },
+  {
+    name:'Cairo', country:'Egypt', flag:'🇪🇬',
+    lat:30.0444, lon:31.2357, type:'Historic capital',
+    desc:'Egypt’s capital, near the Nile and the ancient monuments of the Giza plateau.'
+  },
+  {
+    name:'Rio de Janeiro', country:'Brazil', flag:'🇧🇷',
+    lat:-22.9068, lon:-43.1729, type:'Coastal city',
+    desc:'A Brazilian coastal city known for its mountains, beaches and lively cultural traditions.'
+  },
+  {
+    name:'Singapore', country:'Singapore', flag:'🇸🇬',
+    lat:1.3521, lon:103.8198, type:'Island city-state',
+    desc:'A Southeast Asian city-state with a major port, diverse food culture and modern skyline.'
+  },
+  {
+    name:'Cape Town', country:'South Africa', flag:'🇿🇦',
+    lat:-33.9249, lon:18.4241, type:'Coastal city',
+    desc:'A South African city known for Table Mountain, ocean views and rich cultural heritage.'
+  }
+];
+
+const markerGroup = new THREE.Group();
+earthGroup.add(markerGroup);
+const markerMeshes = [];
+
+locations.forEach(loc => {
+  const position = latLonToVector(loc.lat, loc.lon, 2.15);
+
+  const stem = new THREE.Mesh(
+    new THREE.SphereGeometry(.045, 12, 10),
+    new THREE.MeshBasicMaterial({ color: 0x8df5ff })
+  );
+  stem.position.copy(position);
+  stem.userData.location = loc;
+  markerGroup.add(stem);
+  markerMeshes.push(stem);
+
+  const ring = new THREE.Mesh(
+    new THREE.RingGeometry(.065, .105, 32),
+    new THREE.MeshBasicMaterial({
+      color: 0x6cecff,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: .85
+    })
+  );
+  ring.position.copy(position.clone().multiplyScalar(1.012));
+  ring.lookAt(position.clone().multiplyScalar(2));
+  ring.userData.location = loc;
+  markerGroup.add(ring);
+  markerMeshes.push(ring);
+
+  const halo = new THREE.Mesh(
+    new THREE.SphereGeometry(.09, 12, 8),
+    new THREE.MeshBasicMaterial({
+      color: 0x43dfff,
+      transparent: true,
+      opacity: .16
+    })
+  );
+  halo.position.copy(position.clone().multiplyScalar(1.02));
+  halo.userData.location = loc;
+  markerGroup.add(halo);
+  markerMeshes.push(halo);
+});
+
+// Add latitude / longitude grid lines
+const gridGroup = new THREE.Group();
+earthGroup.add(gridGroup);
+
+function addGreatCircle(points, color = 0x70baff, opacity = .16) {
+  const geo = new THREE.BufferGeometry().setFromPoints(points);
+  const line = new THREE.Line(
+    geo,
+    new THREE.LineBasicMaterial({
+      color, transparent: true, opacity
+    })
+  );
+  gridGroup.add(line);
+}
+
+for (let lat = -60; lat <= 60; lat += 30) {
+  const pts = [];
+  for (let lon = -180; lon <= 180; lon += 3) {
+    pts.push(latLonToVector(lat, lon, 2.112));
+  }
+  addGreatCircle(pts);
+}
+for (let lon = -180; lon < 180; lon += 30) {
+  const pts = [];
+  for (let lat = -90; lat <= 90; lat += 3) {
+    pts.push(latLonToVector(lat, lon, 2.112));
+  }
+  addGreatCircle(pts);
+}
+
+// Build destination list
+const list = $('placeList');
+
+function buildList(query = '') {
+  list.innerHTML = '';
+  locations
+    .filter(loc => (loc.name + ' ' + loc.country).toLowerCase().includes(query.toLowerCase()))
+    .forEach(loc => {
+      const btn = document.createElement('button');
+      btn.className = 'place';
+      btn.dataset.name = loc.name;
+      btn.innerHTML = `
+        <span class="flag">${loc.flag}</span>
+        <span>
+          <div class="place-name">${loc.name}</div>
+          <div class="place-country">${loc.country}</div>
+        </span>
+        <span class="place-arrow">›</span>`;
+      btn.addEventListener('click', () => selectLocation(loc, true));
+      list.appendChild(btn);
+    });
+}
+buildList();
+
+let selectedLocation = locations[0];
+let targetQuaternion = null;
+let autoRotate = true;
+let markersVisible = true;
+let atmosphereVisible = true;
+let rotationSpeed = 1;
+let toastTimer = null;
+
+function showToast(message) {
+  const el = $('toast');
+  el.textContent = message;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+// Rotate Earth so a selected longitude/latitude faces the camera.
+function orientToLocation(loc) {
+  const normal = latLonToVector(loc.lat, loc.lon, 1).normalize();
+  const desired = new THREE.Quaternion().setFromUnitVectors(
+    normal, new THREE.Vector3(0, 0, 1)
+  );
+  targetQuaternion = desired;
+  controls.target.set(0, 0, 0);
+}
+
+function selectLocation(loc, focus = false) {
+  selectedLocation = loc;
+
+  $('locationName').textContent = loc.name;
+  $('locationType').textContent = loc.type + ' · ' + loc.country;
+  $('locationDescription').textContent = loc.desc;
+  $('lat').textContent = (loc.lat >= 0 ? '+' : '') + loc.lat.toFixed(4) + '°';
+  $('lon').textContent = (loc.lon >= 0 ? '+' : '') + loc.lon.toFixed(4) + '°';
+
+  document.querySelectorAll('.place').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.name === loc.name);
+  });
+
+  if (focus) {
+    orientToLocation(loc);
+    camera.position.set(0, 0, 5.8);
+    showToast('Exploring ' + loc.name);
+  }
+}
+
+$('search').addEventListener('input', e => buildList(e.target.value));
+
+$('focus').addEventListener('click', () => {
+  orientToLocation(selectedLocation);
+  camera.position.set(0, 0, 5.8);
+  showToast('Focusing on ' + selectedLocation.name);
+});
+
+$('mapBtn').addEventListener('click', () => {
+  const loc = selectedLocation;
+  const url = `https://www.openstreetmap.org/?mlat=${loc.lat}&mlon=${loc.lon}#map=8/${loc.lat}/${loc.lon}`;
+  window.open(url, '_blank', 'noopener,noreferrer');
+});
+
+$('autoRotate').addEventListener('change', e => {
+  autoRotate = e.target.checked;
+  controls.autoRotate = autoRotate;
+  $('rotate').classList.toggle('active', autoRotate);
+  showToast(autoRotate ? 'Auto rotation enabled' : 'Auto rotation disabled');
+});
+
+$('speed').addEventListener('input', e => {
+  rotationSpeed = Number(e.target.value);
+  controls.autoRotateSpeed = .55 * rotationSpeed;
+  $('speedValue').textContent = rotationSpeed.toFixed(1) + '×';
+});
+
+$('rotate').addEventListener('click', () => {
+  autoRotate = !autoRotate;
+  controls.autoRotate = autoRotate;
+  $('autoRotate').checked = autoRotate;
+  $('rotate').classList.toggle('active', autoRotate);
+});
+
+$('markers').addEventListener('click', () => {
+  markersVisible = !markersVisible;
+  markerGroup.visible = markersVisible;
+  $('markers').classList.toggle('active', markersVisible);
+  showToast(markersVisible ? 'Location markers enabled' : 'Location markers hidden');
+});
+
+$('atmosphere').addEventListener('click', () => {
+  atmosphereVisible = !atmosphereVisible;
+  atmosphere.visible = atmosphereVisible;
+  outerGlow.visible = atmosphereVisible;
+  $('atmosphere').classList.toggle('active', atmosphereVisible);
+});
+
+$('home').addEventListener('click', () => {
+  camera.position.set(0, 1.5, 9);
+  controls.target.set(0, 0, 0);
+  targetQuaternion = null;
+  selectLocation(locations[0], false);
+  showToast('View reset');
+});
+
+$('zoomIn').addEventListener('click', () => {
+  camera.position.multiplyScalar(.82);
+  camera.position.clampLength(3.3, 20);
+});
+$('zoomOut').addEventListener('click', () => {
+  camera.position.multiplyScalar(1.2);
+  camera.position.clampLength(3.3, 20);
+});
+
+// Clickable 3D location markers.
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+
+renderer.domElement.addEventListener('click', event => {
+  if (event.button !== 0) return;
+
+  pointer.x = (event.clientX / innerWidth) * 2 - 1;
+  pointer.y = -(event.clientY / innerHeight) * 2 + 1;
+  raycaster.setFromCamera(pointer, camera);
+
+  const hits = raycaster.intersectObjects(markerMeshes, false);
+  if (hits.length && markersVisible) {
+    const loc = hits[0].object.userData.location;
+    if (loc) selectLocation(loc, true);
+  }
+});
+
+const clock = new THREE.Clock();
+
+function animate() {
+  requestAnimationFrame(animate);
+  const delta = Math.min(clock.getDelta(), .05);
+
+  if (targetQuaternion) {
+    earthGroup.quaternion.slerp(targetQuaternion, .045);
+    if (earthGroup.quaternion.angleTo(targetQuaternion) < .002) {
+      earthGroup.quaternion.copy(targetQuaternion);
+      targetQuaternion = null;
+    }
+  } else if (!controls.autoRotate) {
+    // User controls the orientation.
+  }
+
+  if (autoRotate && !targetQuaternion) {
+    clouds.rotation.y += delta * .012;
+  } else {
+    clouds.rotation.y += delta * .003;
+  }
+
+  const pulse = 1 + Math.sin(performance.now() * .002) * .08;
+  markerMeshes.forEach((mesh, i) => {
+    if (i % 3 === 2) mesh.scale.setScalar(pulse);
+  });
+
+  stars.rotation.y += delta * .001;
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+
+function resize() {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setSize(innerWidth, innerHeight);
+}
+window.addEventListener('resize', resize);
+
+function updateClock() {
+  $('utc').textContent = 'UTC ' + new Date().toISOString().slice(11, 19);
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+selectLocation(locations[0], false);
+
+setTimeout(() => {
+  $('loading').style.opacity = '0';
+  setTimeout(() => $('loading').remove(), 750);
+  showToast('Welcome to Earth 3D Explorer');
+}, 900);
+</script>
+</body>
+</html>

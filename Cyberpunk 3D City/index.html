@@ -1,0 +1,956 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEON CITY // Cyberpunk 2099</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@400;500;600;700&display=swap');
+
+:root {
+  --cyan: #00f5ff;
+  --pink: #ff168c;
+  --purple: #9b4dff;
+  --bg: #03040a;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  overflow: hidden;
+  background: var(--bg);
+  color: white;
+  font-family: 'Rajdhani', sans-serif;
+}
+
+#scene {
+  position: fixed;
+  inset: 0;
+}
+
+canvas { display: block; }
+
+body::after {
+  content: "";
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  background:
+    linear-gradient(transparent 50%, rgba(0,0,0,.12) 50%),
+    radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,.6));
+  background-size: 100% 4px, 100% 100%;
+  z-index: 2;
+}
+
+.hud {
+  position: fixed;
+  z-index: 5;
+  inset: 0;
+  pointer-events: none;
+}
+
+header {
+  position: absolute;
+  top: 22px;
+  left: 25px;
+  right: 25px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.logo {
+  font: 900 clamp(20px, 3vw, 35px) Orbitron, sans-serif;
+  letter-spacing: 4px;
+  text-shadow: 0 0 18px var(--cyan);
+}
+
+.logo span { color: var(--cyan); }
+
+.subtitle {
+  color: #93a4bc;
+  letter-spacing: 4px;
+  font-size: 11px;
+  margin-top: 7px;
+}
+
+.status {
+  text-align: right;
+  font: 11px Orbitron, sans-serif;
+  letter-spacing: 1px;
+  color: var(--cyan);
+  line-height: 2;
+}
+
+.status b {
+  color: #7affbd;
+  font-weight: 400;
+}
+
+.panel {
+  position: absolute;
+  top: 115px;
+  left: 24px;
+  width: 220px;
+  padding: 18px;
+  background: rgba(4, 10, 25, .78);
+  border: 1px solid rgba(0,245,255,.32);
+  box-shadow: 0 0 25px rgba(0,245,255,.06);
+  backdrop-filter: blur(12px);
+  pointer-events: auto;
+}
+
+.section-title {
+  font: 12px Orbitron, sans-serif;
+  color: var(--cyan);
+  letter-spacing: 2px;
+  margin-bottom: 14px;
+}
+
+.stat {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #1a2639;
+  font-size: 14px;
+  color: #9daec3;
+}
+
+.stat strong {
+  color: white;
+  font-weight: 600;
+}
+
+.controls {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+button {
+  font: 600 12px Orbitron, sans-serif;
+  color: white;
+  letter-spacing: 1px;
+  background: rgba(0,245,255,.06);
+  border: 1px solid rgba(0,245,255,.35);
+  padding: 11px 9px;
+  cursor: pointer;
+  transition: .2s;
+}
+
+button:hover, button.active {
+  background: rgba(0,245,255,.2);
+  border-color: var(--cyan);
+  box-shadow: 0 0 14px rgba(0,245,255,.12);
+}
+
+.bottom {
+  position: absolute;
+  bottom: 22px;
+  left: 25px;
+  right: 25px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.location {
+  font: 11px Orbitron, sans-serif;
+  color: var(--cyan);
+  letter-spacing: 2px;
+  line-height: 2;
+}
+
+.location span {
+  display: block;
+  font: 15px Rajdhani, sans-serif;
+  color: #c0c9d7;
+  letter-spacing: 1px;
+}
+
+.hint {
+  color: #8995aa;
+  font-size: 12px;
+  text-align: right;
+  line-height: 1.8;
+}
+
+#loading {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  background: #03040a;
+  font-family: Orbitron, sans-serif;
+  transition: opacity .8s;
+}
+
+#loading h1 {
+  color: var(--cyan);
+  letter-spacing: 5px;
+  font-size: clamp(20px, 4vw, 38px);
+  text-shadow: 0 0 25px var(--cyan);
+}
+
+#loading p {
+  color: #8995aa;
+  letter-spacing: 3px;
+  font-size: 11px;
+}
+
+.bar {
+  width: 200px;
+  height: 2px;
+  background: #172238;
+  margin: 20px auto;
+  overflow: hidden;
+}
+
+.bar::after {
+  content: "";
+  display: block;
+  height: 100%;
+  width: 45%;
+  background: var(--cyan);
+  animation: load 1s infinite alternate;
+}
+
+@keyframes load { to { transform: translateX(125%); } }
+
+#toast {
+  position: fixed;
+  z-index: 10;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--cyan);
+  background: #06101dcc;
+  border: 1px solid #00f5ff66;
+  padding: 10px 16px;
+  font: 11px Orbitron, sans-serif;
+  opacity: 0;
+  transition: opacity .3s;
+  pointer-events: none;
+  text-align: center;
+  max-width: 90vw;
+}
+
+#toast.show { opacity: 1; }
+
+@media(max-width: 650px) {
+  header { top: 14px; left: 14px; right: 14px; }
+  .logo { letter-spacing: 2px; }
+  .subtitle { letter-spacing: 2px; font-size: 9px; }
+  .status { font-size: 9px; }
+  .panel {
+    top: 95px;
+    left: 12px;
+    width: 165px;
+    padding: 12px;
+  }
+  .section-title { font-size: 10px; }
+  .stat { font-size: 12px; padding: 6px 0; }
+  button { padding: 10px 5px; font-size: 10px; }
+  .bottom { left: 13px; right: 13px; bottom: 13px; }
+  .hint { font-size: 10px; max-width: 45%; }
+  .location { font-size: 9px; }
+  .location span { font-size: 13px; }
+}
+
+@media(max-height: 540px) {
+  .panel { top: 85px; }
+  .controls { gap: 4px; margin-top: 8px; }
+  button { padding: 6px; }
+}
+</style>
+</head>
+
+<body>
+<div id="scene"></div>
+
+<div id="loading">
+  <h1>NEON CITY</h1>
+  <p>INITIALIZING NIGHT SYSTEM</p>
+  <div class="bar"></div>
+  <p id="loadText">BUILDING THE FUTURE...</p>
+</div>
+
+<div class="hud">
+  <header>
+    <div>
+      <div class="logo">NEON<span>/</span>CITY</div>
+      <div class="subtitle">NIGHT DISTRICT // 2099</div>
+    </div>
+    <div class="status">
+      <div>SYS <b>ONLINE</b></div>
+      <div>WEATHER: RAIN</div>
+      <div>SECTOR: 07-X</div>
+    </div>
+  </header>
+
+  <aside class="panel">
+    <div class="section-title">CITY SYSTEMS</div>
+    <div class="stat"><span>Buildings</span><strong id="buildingCount">0</strong></div>
+    <div class="stat"><span>Vehicles</span><strong id="vehicleCount">0</strong></div>
+    <div class="stat"><span>Rain</span><strong id="rainStatus">ON</strong></div>
+    <div class="stat"><span>Neon</span><strong id="neonStatus">ON</strong></div>
+    <div class="stat"><span>Time</span><strong id="clock">23:59</strong></div>
+
+    <div class="controls">
+      <button id="rainBtn" class="active">RAIN: ON</button>
+      <button id="neonBtn" class="active">NEON: ON</button>
+      <button id="trafficBtn" class="active">TRAFFIC: ON</button>
+      <button id="autoBtn">AUTO TOUR: OFF</button>
+      <button id="resetBtn">RESET CAMERA</button>
+    </div>
+  </aside>
+
+  <div class="bottom">
+    <div class="location">
+      LIVE LOCATION
+      <span>NEON CENTRAL / LEVEL 01</span>
+    </div>
+    <div class="hint">
+      DRAG TO ROTATE · SCROLL TO ZOOM
+      <br>RIGHT-CLICK + DRAG TO PAN
+    </div>
+  </div>
+</div>
+
+<div id="toast">WELCOME TO NEON CITY</div>
+
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js';
+
+const container = document.getElementById('scene');
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x03040a);
+scene.fog = new THREE.FogExp2(0x070a19, 0.009);
+
+const camera = new THREE.PerspectiveCamera(
+  65, window.innerWidth / window.innerHeight, 0.1, 1000
+);
+camera.position.set(30, 25, 38);
+
+const renderer = new THREE.WebGLRenderer({
+  antialias: true,
+  powerPreference: 'high-performance'
+});
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.7));
+renderer.shadowMap.enabled = false;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.35;
+container.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.minDistance = 8;
+controls.maxDistance = 110;
+controls.maxPolarAngle = Math.PI * 0.48;
+controls.target.set(0, 5, 0);
+
+scene.add(new THREE.HemisphereLight(0x6476cc, 0x100719, 2));
+
+const ambient = new THREE.AmbientLight(0x485080, 0.7);
+scene.add(ambient);
+
+const cyan = 0x00f5ff;
+const pink = 0xff168c;
+const purple = 0x793dff;
+
+const neonMaterials = [];
+const animated = [];
+const rainObjects = [];
+const vehicles = [];
+
+let rainEnabled = true;
+let neonEnabled = true;
+let trafficEnabled = true;
+let autoTour = false;
+let toastTimer;
+
+function showToast(message) {
+  const el = document.getElementById('toast');
+  el.textContent = message;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 1900);
+}
+
+function box(w, h, d, material, x, y, z, parent = scene) {
+  const mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(w, h, d), material
+  );
+  mesh.position.set(x, y, z);
+  parent.add(mesh);
+  return mesh;
+}
+
+function emissive(color, intensity = 2) {
+  const m = new THREE.MeshStandardMaterial({
+    color,
+    emissive: color,
+    emissiveIntensity: intensity,
+    roughness: 0.35,
+    metalness: 0.35
+  });
+  neonMaterials.push(m);
+  return m;
+}
+
+const cyanMat = emissive(cyan, 2.8);
+const pinkMat = emissive(pink, 2.8);
+const purpleMat = emissive(purple, 2.5);
+const whiteMat = emissive(0x9feeff, 2);
+
+const darkMats = [
+  0x10152a, 0x151125, 0x101d31, 0x1d122b,
+  0x121827, 0x171c30, 0x20162b
+].map(c => new THREE.MeshStandardMaterial({
+  color: c, roughness: 0.65, metalness: 0.5
+}));
+
+// Ground
+const ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(240, 240),
+  new THREE.MeshStandardMaterial({
+    color: 0x080b18, roughness: 0.24, metalness: 0.65
+  })
+);
+ground.rotation.x = -Math.PI / 2;
+ground.position.y = -0.08;
+scene.add(ground);
+
+// Grid beneath the city
+const grid = new THREE.GridHelper(220, 100, 0x15344b, 0x111b32);
+grid.position.y = 0.015;
+grid.material.transparent = true;
+grid.material.opacity = 0.28;
+scene.add(grid);
+
+// Road layout
+const roadMat = new THREE.MeshStandardMaterial({
+  color: 0x090b14, roughness: 0.3, metalness: 0.55
+});
+
+box(12, 0.06, 210, roadMat, 0, 0.02, 0);
+box(210, 0.06, 12, roadMat, 0, 0.025, 0);
+
+function roadLine(x, z, w, d, colorMat) {
+  return box(w, 0.025, d, colorMat, x, 0.08, z);
+}
+
+for (let i = -96; i <= 96; i += 8) {
+  roadLine(0, i, 0.12, 3.2, cyanMat);
+  roadLine(i, 0, 3.2, 0.12, pinkMat);
+}
+
+for (let i = -90; i <= 90; i += 10) {
+  if (i === 0) continue;
+  roadLine(-3, i, 0.08, 2, whiteMat);
+  roadLine(3, i, 0.08, 2, whiteMat);
+  roadLine(i, -3, 2, 0.08, whiteMat);
+  roadLine(i, 3, 2, 0.08, whiteMat);
+}
+
+// City details
+const buildingGroup = new THREE.Group();
+scene.add(buildingGroup);
+
+let buildingCount = 0;
+const cityLimit = 94;
+const spacing = 10;
+const buildingGeometry = new THREE.BoxGeometry(1, 1, 1);
+
+function addWindows(x, z, w, h, d, color) {
+  const mat = color === 'pink' ? pinkMat :
+              color === 'purple' ? purpleMat : cyanMat;
+
+  // Vertical neon corner strips
+  const stripW = 0.11;
+  for (const side of [-1, 1]) {
+    const strip = box(
+      stripW, h, 0.08, mat,
+      x + side * (w / 2 + 0.025), h / 2, z,
+      buildingGroup
+    );
+  }
+
+  // Horizontal glowing bands
+  for (let y = 3; y < h - 1; y += 5 + Math.random() * 4) {
+    const band = box(
+      w + 0.08, 0.09, d + 0.08, mat,
+      x, y, z, buildingGroup
+    );
+  }
+
+  // Random lit windows on the front and back faces
+  const winMat = Math.random() > 0.5 ? cyanMat : pinkMat;
+  for (let y = 2; y < h - 1; y += 2.4) {
+    for (let wx = -w / 2 + 0.8; wx < w / 2 - 0.2; wx += 1.4) {
+      if (Math.random() > 0.57) {
+        box(
+          0.55, 0.8, 0.035, winMat,
+          x + wx, y, z + d / 2 + 0.025,
+          buildingGroup
+        );
+      }
+      if (Math.random() > 0.78) {
+        box(
+          0.55, 0.8, 0.035, whiteMat,
+          x + wx, y, z - d / 2 - 0.025,
+          buildingGroup
+        );
+      }
+    }
+  }
+}
+
+function makeSign(x, y, z, color, rotation = 0) {
+  const group = new THREE.Group();
+  group.position.set(x, y, z);
+  group.rotation.y = rotation;
+  scene.add(group);
+
+  const signMat = color === 'pink' ? pinkMat :
+                  color === 'purple' ? purpleMat : cyanMat;
+
+  box(2.5, 0.75, 0.16, signMat, 0, 0, 0, group);
+
+  // Dark inner sign panel
+  box(
+    2.25, 0.49, 0.19,
+    new THREE.MeshBasicMaterial({ color: 0x080c1a }),
+    0, 0, 0.1, group
+  );
+
+  // Abstract sign bars
+  for (let i = 0; i < 3; i++) {
+    box(
+      0.32 + Math.random() * 0.55,
+      0.045, 0.025, signMat,
+      -0.6 + i * 0.45, (i - 1) * 0.13, 0.22, group
+    );
+  }
+}
+
+for (let x = -cityLimit; x <= cityLimit; x += spacing) {
+  for (let z = -cityLimit; z <= cityLimit; z += spacing) {
+    // Keep the main intersection open
+    if (Math.abs(x) < 10 || Math.abs(z) < 10) continue;
+
+    if (Math.random() > 0.91) continue;
+
+    const w = 5 + Math.random() * 3.5;
+    const d = 5 + Math.random() * 3.5;
+    const h = 9 + Math.pow(Math.random(), 0.7) * 38;
+
+    const material = darkMats[
+      Math.floor(Math.random() * darkMats.length)
+    ];
+
+    const building = new THREE.Mesh(buildingGeometry, material);
+    building.scale.set(w, h, d);
+    building.position.set(
+      x + (Math.random() - 0.5) * 1.8,
+      h / 2,
+      z + (Math.random() - 0.5) * 1.8
+    );
+    buildingGroup.add(building);
+    buildingCount++;
+
+    // Roof equipment
+    if (Math.random() > 0.4) {
+      const antennaH = 1 + Math.random() * 4;
+      box(
+        0.14, antennaH, 0.14,
+        Math.random() > 0.5 ? cyanMat : pinkMat,
+        building.position.x, h + antennaH / 2,
+        building.position.z, buildingGroup
+      );
+    }
+
+    const colorChoice = Math.random();
+    const color = colorChoice < 0.34 ? 'cyan' :
+                  colorChoice < 0.67 ? 'pink' : 'purple';
+
+    addWindows(
+      building.position.x, building.position.z,
+      w, h, d, color
+    );
+
+    if (Math.random() > 0.72) {
+      const side = Math.random() > 0.5 ? 1 : -1;
+      makeSign(
+        building.position.x + side * (w / 2 + 0.3),
+        Math.min(h * 0.65, h - 3),
+        building.position.z,
+        color
+      );
+    }
+
+    // Roof light
+    if (Math.random() > 0.65) {
+      const beacon = new THREE.PointLight(
+        color === 'pink' ? pink : cyan, 7, 12
+      );
+      beacon.position.set(
+        building.position.x, h + 0.8, building.position.z
+      );
+      scene.add(beacon);
+      animated.push({
+        type: 'beacon',
+        light: beacon,
+        phase: Math.random() * 6
+      });
+    }
+  }
+}
+
+document.getElementById('buildingCount').textContent = buildingCount;
+
+// Rooftop structures in the central district
+for (let i = 0; i < 12; i++) {
+  const x = (Math.random() - 0.5) * 80;
+  const z = (Math.random() - 0.5) * 80;
+  if (Math.abs(x) < 13 || Math.abs(z) < 13) continue;
+  makeSign(x, 12 + Math.random() * 18, z, 'purple');
+}
+
+// Flying cars / traffic
+const carBodyGeo = new THREE.BoxGeometry(2.1, 0.65, 3.7);
+const carTopGeo = new THREE.BoxGeometry(1.35, 0.45, 1.45);
+
+function createCar(color, index) {
+  const group = new THREE.Group();
+  const mat = emissive(color, 1.8);
+
+  const body = new THREE.Mesh(
+    carBodyGeo,
+    new THREE.MeshStandardMaterial({
+      color: 0x15192c, metalness: 0.8, roughness: 0.25,
+      emissive: color, emissiveIntensity: 0.25
+    })
+  );
+  group.add(body);
+
+  const cabin = new THREE.Mesh(
+    carTopGeo,
+    new THREE.MeshStandardMaterial({
+      color: 0x162c43, metalness: 0.7, roughness: 0.2,
+      emissive: 0x052b42, emissiveIntensity: 0.6
+    })
+  );
+  cabin.position.y = 0.48;
+  group.add(cabin);
+
+  // Headlights
+  for (const side of [-1, 1]) {
+    const light = new THREE.Mesh(
+      new THREE.BoxGeometry(0.48, 0.12, 0.08), whiteMat
+    );
+    light.position.set(side * 0.65, 0, 1.88);
+    group.add(light);
+
+    const tail = new THREE.Mesh(
+      new THREE.BoxGeometry(0.42, 0.13, 0.08), mat
+    );
+    tail.position.set(side * 0.65, 0, -1.88);
+    group.add(tail);
+  }
+
+  scene.add(group);
+
+  const lane = index % 4;
+  const flying = index % 5 === 0;
+  const altitude = flying ? 8 + Math.random() * 9 : 0.8;
+
+  const route = index % 2 === 0 ? 'z' : 'x';
+  const direction = Math.random() > 0.5 ? 1 : -1;
+
+  if (route === 'z') {
+    group.position.set(
+      lane < 2 ? -3 : 3,
+      altitude,
+      direction > 0 ? -100 - Math.random() * 200 : 100 + Math.random() * 200
+    );
+  } else {
+    group.rotation.y = direction > 0 ? Math.PI / 2 : -Math.PI / 2;
+    group.position.set(
+      direction > 0 ? -100 - Math.random() * 200 : 100 + Math.random() * 200,
+      altitude,
+      lane < 2 ? -3 : 3
+    );
+  }
+
+  vehicles.push({
+    group, route, direction,
+    speed: 12 + Math.random() * 18,
+    flying, altitude,
+    phase: Math.random() * 10
+  });
+}
+
+for (let i = 0; i < 18; i++) {
+  const color = i % 2 ? pink : cyan;
+  createCar(color, i);
+}
+
+document.getElementById('vehicleCount').textContent = vehicles.length;
+
+// Rain particle system
+const rainCount = 4500;
+const rainPositions = new Float32Array(rainCount * 3);
+const rainSpeeds = new Float32Array(rainCount);
+
+for (let i = 0; i < rainCount; i++) {
+  rainPositions[i * 3] = (Math.random() - 0.5) * 180;
+  rainPositions[i * 3 + 1] = Math.random() * 90;
+  rainPositions[i * 3 + 2] = (Math.random() - 0.5) * 180;
+  rainSpeeds[i] = 22 + Math.random() * 36;
+}
+
+const rainGeo = new THREE.BufferGeometry();
+rainGeo.setAttribute(
+  'position',
+  new THREE.BufferAttribute(rainPositions, 3)
+);
+
+const rainMat = new THREE.PointsMaterial({
+  color: 0x7cddff,
+  size: 0.09,
+  transparent: true,
+  opacity: 0.65,
+  depthWrite: false
+});
+
+const rain = new THREE.Points(rainGeo, rainMat);
+scene.add(rain);
+
+// Atmospheric particles
+const particleCount = 900;
+const particlePositions = new Float32Array(particleCount * 3);
+
+for (let i = 0; i < particleCount; i++) {
+  particlePositions[i * 3] = (Math.random() - 0.5) * 190;
+  particlePositions[i * 3 + 1] = Math.random() * 55;
+  particlePositions[i * 3 + 2] = (Math.random() - 0.5) * 190;
+}
+
+const particleGeo = new THREE.BufferGeometry();
+particleGeo.setAttribute(
+  'position',
+  new THREE.BufferAttribute(particlePositions, 3)
+);
+
+const particles = new THREE.Points(
+  particleGeo,
+  new THREE.PointsMaterial({
+    color: 0xff6dd8,
+    size: 0.12,
+    transparent: true,
+    opacity: 0.7,
+    depthWrite: false
+  })
+);
+scene.add(particles);
+
+// Holographic billboard rings
+for (let i = 0; i < 9; i++) {
+  const ring = new THREE.Mesh(
+    new THREE.TorusGeometry(1.1 + Math.random() * 1.8, 0.035, 8, 64),
+    i % 2 ? cyanMat : pinkMat
+  );
+  ring.position.set(
+    (Math.random() - 0.5) * 70,
+    15 + Math.random() * 24,
+    (Math.random() - 0.5) * 70
+  );
+  ring.rotation.x = Math.random() * Math.PI;
+  scene.add(ring);
+
+  animated.push({
+    type: 'ring', mesh: ring,
+    speed: 0.2 + Math.random() * 0.5
+  });
+}
+
+// Distant skyline haze lights
+for (let i = 0; i < 60; i++) {
+  const material = i % 2 ? cyanMat : pinkMat;
+  const x = (Math.random() - 0.5) * 180;
+  const z = (Math.random() - 0.5) * 180;
+
+  const lightBar = box(
+    0.16, 1 + Math.random() * 8, 0.16,
+    material, x, 0.5, z
+  );
+  lightBar.position.y = lightBar.geometry.parameters.height / 2;
+}
+
+// Interactive buttons
+document.getElementById('rainBtn').addEventListener('click', () => {
+  rainEnabled = !rainEnabled;
+  rain.visible = rainEnabled;
+  rainMat.opacity = rainEnabled ? 0.65 : 0;
+  document.getElementById('rainBtn').textContent =
+    `RAIN: ${rainEnabled ? 'ON' : 'OFF'}`;
+  document.getElementById('rainBtn').classList.toggle('active', rainEnabled);
+  document.getElementById('rainStatus').textContent = rainEnabled ? 'ON' : 'OFF';
+  showToast(`RAIN SYSTEM ${rainEnabled ? 'ACTIVATED' : 'DISABLED'}`);
+});
+
+document.getElementById('neonBtn').addEventListener('click', () => {
+  neonEnabled = !neonEnabled;
+  for (const m of neonMaterials) {
+    m.emissiveIntensity = neonEnabled ? 2.7 : 0.08;
+  }
+  document.getElementById('neonBtn').textContent =
+    `NEON: ${neonEnabled ? 'ON' : 'OFF'}`;
+  document.getElementById('neonBtn').classList.toggle('active', neonEnabled);
+  document.getElementById('neonStatus').textContent = neonEnabled ? 'ON' : 'OFF';
+  showToast(`NEON LIGHTS ${neonEnabled ? 'ACTIVATED' : 'DIMMED'}`);
+});
+
+document.getElementById('trafficBtn').addEventListener('click', () => {
+  trafficEnabled = !trafficEnabled;
+  vehicles.forEach(v => v.group.visible = trafficEnabled);
+  document.getElementById('trafficBtn').textContent =
+    `TRAFFIC: ${trafficEnabled ? 'ON' : 'OFF'}`;
+  document.getElementById('trafficBtn').classList.toggle('active', trafficEnabled);
+  showToast(`TRAFFIC ${trafficEnabled ? 'MOVING' : 'PAUSED'}`);
+});
+
+document.getElementById('autoBtn').addEventListener('click', () => {
+  autoTour = !autoTour;
+  controls.autoRotate = autoTour;
+  controls.autoRotateSpeed = 0.55;
+  document.getElementById('autoBtn').textContent =
+    `AUTO TOUR: ${autoTour ? 'ON' : 'OFF'}`;
+  document.getElementById('autoBtn').classList.toggle('active', autoTour);
+  showToast(autoTour ? 'AUTONOMOUS CITY TOUR STARTED' : 'MANUAL CAMERA ENABLED');
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  camera.position.set(30, 25, 38);
+  controls.target.set(0, 5, 0);
+  controls.autoRotate = false;
+  autoTour = false;
+  document.getElementById('autoBtn').textContent = 'AUTO TOUR: OFF';
+  document.getElementById('autoBtn').classList.remove('active');
+  controls.update();
+  showToast('CAMERA POSITION RESET');
+});
+
+// Clock
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent =
+    now.toLocaleTimeString('en-GB', {
+      hour: '2-digit', minute: '2-digit'
+    });
+}
+updateClock();
+setInterval(updateClock, 10000);
+
+// Animation loop
+const clock = new THREE.Clock();
+let elapsed = 0;
+
+function animate() {
+  requestAnimationFrame(animate);
+
+  const dt = Math.min(clock.getDelta(), 0.05);
+  elapsed += dt;
+
+  controls.update();
+
+  // Falling rain
+  if (rainEnabled) {
+    const pos = rainGeo.attributes.position.array;
+    for (let i = 0; i < rainCount; i++) {
+      pos[i * 3 + 1] -= rainSpeeds[i] * dt;
+      pos[i * 3] += 1.3 * dt;
+
+      if (pos[i * 3 + 1] < 0) {
+        pos[i * 3 + 1] = 80 + Math.random() * 10;
+        pos[i * 3] = (Math.random() - 0.5) * 180;
+        pos[i * 3 + 2] = (Math.random() - 0.5) * 180;
+      }
+    }
+    rainGeo.attributes.position.needsUpdate = true;
+  }
+
+  // Floating particles
+  const pp = particleGeo.attributes.position.array;
+  for (let i = 0; i < particleCount; i++) {
+    pp[i * 3 + 1] += Math.sin(elapsed + i) * dt * 0.12;
+    pp[i * 3] += Math.cos(elapsed * 0.3 + i) * dt * 0.1;
+  }
+  particleGeo.attributes.position.needsUpdate = true;
+
+  // Moving vehicles
+  for (const v of vehicles) {
+    if (!trafficEnabled) continue;
+
+    const p = v.group.position;
+
+    if (v.route === 'z') {
+      p.z += v.speed * v.direction * dt;
+      if (Math.abs(p.z) > 110) p.z = -110 * v.direction;
+    } else {
+      p.x += v.speed * v.direction * dt;
+      if (Math.abs(p.x) > 110) p.x = -110 * v.direction;
+    }
+
+    if (v.flying) {
+      p.y = v.altitude + Math.sin(elapsed * 1.8 + v.phase) * 0.6;
+    }
+  }
+
+  // Animated holograms and beacons
+  for (const a of animated) {
+    if (a.type === 'ring') {
+      a.mesh.rotation.z += dt * a.speed;
+      a.mesh.rotation.y += dt * a.speed * 0.5;
+    }
+    if (a.type === 'beacon') {
+      a.light.intensity = 4 + Math.sin(elapsed * 3 + a.phase) * 3;
+    }
+  }
+
+  renderer.render(scene, camera);
+}
+
+animate();
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.7));
+});
+
+// Hide loading screen after initialization
+document.getElementById('loadText').textContent = 'CITY SYSTEMS ONLINE';
+
+setTimeout(() => {
+  const loader = document.getElementById('loading');
+  loader.style.opacity = '0';
+  setTimeout(() => loader.remove(), 850);
+  showToast('WELCOME TO NEON CITY // 2099');
+}, 900);
+</script>
+</body>
+</html>

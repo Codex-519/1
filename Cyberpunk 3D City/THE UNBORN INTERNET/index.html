@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE UNBORN INTERNET — Possibility Engine</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+        :root {
+            --bg: #080a0f;
+            --panel: #10141d;
+            --line: #262e3c;
+            --text: #f0f4ff;
+            --muted: #929db1;
+            --cyan: #75f5dc;
+            --violet: #ad9aff;
+            --orange: #ffbd80;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Space Grotesk', sans-serif;
+            min-height: 100vh
+        }
+
+        button,
+        input,
+        textarea {
+            font: inherit
+        }
+
+        button {
+            cursor: pointer
+        }
+
+        button:focus-visible,
+        input:focus-visible,
+        textarea:focus-visible {
+            outline: 2px solid var(--cyan);
+            outline-offset: 3px
+        }
+
+        .app {
+            max-width: 1500px;
+            margin: auto;
+            padding: 22px
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 18px;
+            padding: 10px 0 22px;
+            border-bottom: 1px solid var(--line)
+        }
+
+        .brand {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 2px
+        }
+
+        .brand b {
+            color: var(--cyan)
+        }
+
+        .kicker {
+            font: 10px 'DM Mono', monospace;
+            color: var(--muted);
+            letter-spacing: 1.5px
+        }
+
+        .live {
+            font: 10px 'DM Mono', monospace;
+            color: var(--cyan)
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: 260px minmax(0, 1fr);
+            gap: 18px;
+            margin-top: 18px
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 18px;
+            min-width: 0
+        }
+
+        h1,
+        h2,
+        h3,
+        p {
+            margin-top: 0
+        }
+
+        h1 {
+            font-size: clamp(30px, 4vw, 54px);
+            letter-spacing: -2px;
+            line-height: 1.02;
+            margin: 13px 0
+        }
+
+        h1 span {
+            color: var(--cyan)
+        }
+
+        h2 {
+            font-size: 16px;
+            margin-bottom: 8px
+        }
+
+        h3 {
+            font-size: 13px;
+            margin-bottom: 7px
+        }
+
+        p {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.7
+        }
+
+        .label {
+            font: 10px 'DM Mono', monospace;
+            color: var(--muted);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 10px
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            background: #090c12;
+            color: var(--text);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 11px;
+            font-size: 12px
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 75px;
+            line-height: 1.5
+        }
+
+        button {
+            border: 1px solid var(--line);
+            background: #171d29;
+            color: var(--text);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 11px;
+            transition: .18s
+        }
+
+        button:hover {
+            border-color: var(--cyan);
+            color: var(--cyan)
+        }
+
+        button.primary {
+            background: var(--cyan);
+            border-color: var(--cyan);
+            color: #07110f;
+            font-weight: 700
+        }
+
+        button.primary:hover {
+            background: #a0ffed
+        }
+
+        button:disabled {
+            opacity: .35;
+            cursor: not-allowed
+        }
+
+        button.danger:hover {
+            border-color: #ff8b9d;
+            color: #ff8b9d
+        }
+
+        .full {
+            width: 100%
+        }
+
+        .stack {
+            display: grid;
+            gap: 9px
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 14px
+        }
+
+        .rule {
+            height: 1px;
+            background: var(--line);
+            margin: 15px 0
+        }
+
+        .small {
+            font-size: 10px;
+            color: var(--muted);
+            line-height: 1.6
+        }
+
+        .chips {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+            margin: 10px 0
+        }
+
+        .chip {
+            font: 10px 'DM Mono', monospace;
+            border: 1px solid var(--line);
+            padding: 6px 8px;
+            border-radius: 20px;
+            color: #c7d0e1;
+            cursor: pointer
+        }
+
+        .chip:hover {
+            border-color: var(--violet);
+            color: var(--violet)
+        }
+
+        .workspace {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            min-width: 0
+        }
+
+        .hero {
+            padding: 22px;
+            background: radial-gradient(ellipse at 90% 0%, #173b3b55, transparent 50%), var(--panel)
+        }
+
+        .hero-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            align-items: flex-start
+        }
+
+        .hero-copy {
+            max-width: 680px
+        }
+
+        .metrics {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+            margin-top: 18px
+        }
+
+        .metric {
+            border-left: 2px solid var(--line);
+            padding-left: 10px
+        }
+
+        .metric strong {
+            display: block;
+            font-size: 19px
+        }
+
+        .metric span {
+            font: 9px 'DM Mono', monospace;
+            color: var(--muted)
+        }
+
+        .current {
+            border: 1px solid #75f5dc55;
+            background: #0c1c1b;
+            border-radius: 12px;
+            padding: 13px;
+            min-width: 150px
+        }
+
+        .current .number {
+            font: 10px 'DM Mono', monospace;
+            color: var(--cyan)
+        }
+
+        .current strong {
+            display: block;
+            margin-top: 7px;
+            font-size: 14px
+        }
+
+        .tabs {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap
+        }
+
+        .tab.active {
+            border-color: var(--cyan);
+            color: var(--cyan);
+            background: #102321
+        }
+
+        #graph {
+            width: 100%;
+            height: 330px;
+            display: block;
+            background: #090c12;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            cursor: grab
+        }
+
+        .graph-note {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 10px
+        }
+
+        .node-list {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px
+        }
+
+        .node {
+            border: 1px solid var(--line);
+            background: #0c1018;
+            border-radius: 10px;
+            padding: 13px;
+            text-align: left;
+            min-width: 0
+        }
+
+        .node.selected {
+            border-color: var(--cyan);
+            background: #10201f
+        }
+
+        .node .node-num {
+            font: 9px 'DM Mono', monospace;
+            color: var(--cyan)
+        }
+
+        .node strong {
+            display: block;
+            font-size: 12px;
+            margin: 7px 0;
+            overflow-wrap: anywhere
+        }
+
+        .node p {
+            font-size: 10px;
+            margin: 0;
+            overflow-wrap: anywhere
+        }
+
+        .node .prob {
+            display: block;
+            margin-top: 10px;
+            font: 9px 'DM Mono', monospace;
+            color: var(--violet)
+        }
+
+        .section-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 14px
+        }
+
+        .section-head h2 {
+            margin: 0
+        }
+
+        .outcome {
+            padding: 17px;
+            border-radius: 10px;
+            background: #0a0e15;
+            border: 1px solid var(--line);
+            margin-top: 12px
+        }
+
+        .outcome h3 {
+            color: var(--cyan)
+        }
+
+        .outcome p {
+            margin-bottom: 0
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px
+        }
+
+        .log {
+            display: grid;
+            gap: 8px;
+            max-height: 210px;
+            overflow: auto
+        }
+
+        .log-item {
+            padding: 9px 11px;
+            border-left: 2px solid var(--line);
+            background: #0b0f16
+        }
+
+        .log-item strong {
+            font-size: 11px;
+            display: block
+        }
+
+        .log-item span {
+            font: 9px 'DM Mono', monospace;
+            color: var(--muted)
+        }
+
+        .empty {
+            padding: 18px;
+            border: 1px dashed var(--line);
+            border-radius: 9px;
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.8
+        }
+
+        footer {
+            text-align: center;
+            padding: 22px;
+            color: #69758b;
+            font: 10px 'DM Mono', monospace
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translate(-50%, 20px);
+            opacity: 0;
+            pointer-events: none;
+            background: #17231f;
+            border: 1px solid #75f5dc66;
+            color: var(--cyan);
+            padding: 11px 15px;
+            border-radius: 8px;
+            font: 11px 'DM Mono', monospace;
+            transition: .25s;
+            z-index: 9;
+            max-width: 90vw;
+            text-align: center
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translate(-50%, 0)
+        }
+
+        @media(max-width:900px) {
+            main {
+                grid-template-columns: 1fr
+            }
+
+            .sidebar {
+                display: grid;
+                grid-template-columns: 1fr 1fr
+            }
+
+            .node-list {
+                grid-template-columns: repeat(2, minmax(0, 1fr))
+            }
+        }
+
+        @media(max-width:560px) {
+            .app {
+                padding: 12px
+            }
+
+            .sidebar {
+                display: flex
+            }
+
+            .hero-row {
+                display: block
+            }
+
+            .current {
+                margin-top: 16px
+            }
+
+            .two-col {
+                grid-template-columns: 1fr
+            }
+
+            .node-list {
+                grid-template-columns: 1fr
+            }
+
+            #graph {
+                height: 260px
+            }
+
+            .metrics {
+                gap: 12px
+            }
+
+            .brand {
+                font-size: 11px
+            }
+
+            .live {
+                font-size: 8px
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <header>
+            <div class="brand">THE <b>UNBORN</b> INTERNET</div>
+            <div class="live">● POSSIBILITY ENGINE / LOCAL SIMULATION</div>
+        </header>
+
+        <main>
+            <aside class="sidebar">
+                <section class="panel">
+                    <div class="label">01 / Seed a possibility</div>
+                    <h2>Start with a choice.</h2>
+                    <p>Ek idea, decision ya event likh. Engine uske alternate outcomes explore karega.</p>
+                    <div class="stack">
+                        <textarea id="seed" maxlength="180"
+                            placeholder="Example: Humans discover a new sense..."></textarea>
+                        <button class="primary full" id="create">GENERATE POSSIBILITIES ↗</button>
+                    </div>
+                    <div class="chips">
+                        <span class="chip" data-seed="Humans can share memories">Shared memories</span>
+                        <span class="chip" data-seed="Time moves differently for each person">Personal time</span>
+                        <span class="chip" data-seed="Objects remember every person who touched them">Memory
+                            objects</span>
+                        <span class="chip" data-seed="Dreams can be built into physical places">Dream
+                            architecture</span>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <div class="label">02 / Combine concepts</div>
+                    <h2>Unexpected ancestry.</h2>
+                    <p>Do different possibilities ko combine kar. Engine ek hybrid concept generate karega.</p>
+                    <div class="stack">
+                        <input id="ideaA" maxlength="100" placeholder="First concept e.g. memory">
+                        <input id="ideaB" maxlength="100" placeholder="Second concept e.g. weather">
+                        <button id="combine">FUSE THE IMPOSSIBLE ⟷</button>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <div class="label">03 / Controls</div>
+                    <div class="stack">
+                        <button id="export">EXPORT WORLD AS JSON ↓</button>
+                        <button id="reset" class="danger">RESET EXPERIMENT ↻</button>
+                    </div>
+                    <div class="rule"></div>
+                    <div class="small">No account. No API key. Your experiment runs in this browser session.</div>
+                </section>
+            </aside>
+
+            <section class="workspace">
+                <section class="panel hero">
+                    <div class="hero-row">
+                        <div class="hero-copy">
+                            <div class="kicker">A MAP OF THINGS THAT DIDN'T HAPPEN</div>
+                            <h1>Explore the<br><span>unchosen.</span></h1>
+                            <p>Har decision ke peeche multiple possible futures hote hain. Ek select kar, uske
+                                consequences discover kar, phir ek aur choice le. Apni alternate-history network build
+                                kar.</p>
+                        </div>
+                        <div class="current">
+                            <div class="number">CURRENT REALITY</div>
+                            <strong id="currentTitle">The Origin</strong>
+                            <div class="small" id="currentId">NODE / 000</div>
+                        </div>
+                    </div>
+                    <div class="metrics">
+                        <div class="metric"><strong id="worldCount">1</strong><span>DISCOVERED NODES</span></div>
+                        <div class="metric"><strong id="branchCount">0</strong><span>ALTERNATE FUTURES</span></div>
+                        <div class="metric"><strong id="depthCount">0</strong><span>YOUR EXPLORATION DEPTH</span></div>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <div class="section-head">
+                        <div>
+                            <div class="label">World topology</div>
+                            <h2>Possibility map</h2>
+                        </div>
+                        <div class="kicker" id="mapLabel">1 NODE / 0 LINKS</div>
+                    </div>
+                    <canvas id="graph" aria-label="Interactive possibility map"></canvas>
+                    <div class="graph-note">
+                        <span class="small">Select a node below to travel through its history.</span>
+                        <span class="small">● Selected / ○ Discovered</span>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <div class="section-head">
+                        <div>
+                            <div class="label">Your branching timelines</div>
+                            <h2>Discovered realities</h2>
+                        </div>
+                        <div class="kicker" id="nodeLabel">NODE 001</div>
+                    </div>
+                    <div class="node-list" id="nodeList"></div>
+                </section>
+
+                <section class="panel">
+                    <div class="section-head">
+                        <div>
+                            <div class="label">Decision laboratory</div>
+                            <h2 id="labTitle">The Origin</h2>
+                        </div>
+                        <div class="kicker">SIMULATED OUTCOMES</div>
+                    </div>
+                    <p id="labDesc">Create your first possibility to begin exploring alternate histories.</p>
+                    <div id="outcomes" class="empty">Your next choices will appear here.</div>
+                </section>
+
+                <div class="two-col">
+                    <section class="panel">
+                        <div class="label">Experiment journal</div>
+                        <h2>What happened?</h2>
+                        <div class="log" id="journal">
+                            <div class="log-item"><strong>Experiment initialized</strong><span>ORIGIN CREATED</span>
+                            </div>
+                        </div>
+                    </section>
+                    <section class="panel">
+                        <div class="label">Rules of this universe</div>
+                        <h2>How it works</h2>
+                        <p>1. Create a seed idea.<br>2. Generate alternate outcomes.<br>3. Choose one outcome to enter
+                            it.<br>4. Generate further consequences from that branch.<br>5. Fuse two concepts to
+                            discover hybrid ideas.</p>
+                        <div class="small">The engine uses local templates and deterministic rules, not a trained AI
+                            model. Outcomes are invented simulations, not predictions.</div>
+                    </section>
+                </div>
+            </section>
+        </main>
+        <footer>THE UNBORN INTERNET · EXPERIMENTAL POSSIBILITY ENGINE · BUILD 001</footer>
+    </div>
+    <div class="toast" id="toast"></div>
+
+    <script>
+        (() => {
+            "use strict";
+
+            const $ = id => document.getElementById(id);
+            const canvas = $("graph");
+            const ctx = canvas.getContext("2d");
+
+            let nodes = [];
+            let selectedId = 0;
+            let nextId = 1;
+            let journal = [];
+            let toastTimer;
+            let graphW = 0, graphH = 0, dpr = 1;
+            let dragNode = null;
+            let dragging = false;
+            let dragStart = null;
+            let viewOffset = { x: 0, y: 0 };
+            let lastPointer = null;
+
+            function addJournal(title, detail) {
+                journal.unshift({ title, detail });
+                journal = journal.slice(0, 30);
+                renderJournal();
+            }
+
+            function showToast(message) {
+                const el = $("toast");
+                el.textContent = message;
+                el.classList.add("show");
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => el.classList.remove("show"), 2200);
+            }
+
+            function hashString(s) {
+                let h = 2166136261;
+                for (let i = 0; i < s.length; i++) {
+                    h ^= s.charCodeAt(i);
+                    h = Math.imul(h, 16777619);
+                }
+                return h >>> 0;
+            }
+
+            function seededRandom(seed) {
+                let x = seed >>> 0;
+                return () => {
+                    x = (Math.imul(1664525, x) + 1013904223) >>> 0;
+                    return x / 4294967296;
+                };
+            }
+
+            function cleanTitle(text) {
+                text = text.trim().replace(/\s+/g, " ");
+                if (!text) return "An Unnamed Possibility";
+                return text.length > 58 ? text.slice(0, 55) + "..." : text;
+            }
+
+            function makeOutcomes(seedText, id) {
+                const seed = hashString(seedText + ":" + id);
+                const rand = seededRandom(seed);
+                const templates = [
+                    {
+                        title: "The unexpected consequence",
+                        body: `In this branch, ${seedText.toLowerCase()} changes an everyday assumption. People begin building new habits around it, and institutions must adapt to a world that follows different rules.`,
+                        action: "Follow the consequence"
+                    },
+                    {
+                        title: "The opposite decision",
+                        body: `Imagine the opposite response to ${seedText.toLowerCase()}. The original idea is rejected, but a workaround emerges. What began as a limitation becomes a different kind of opportunity.`,
+                        action: "Explore the alternative"
+                    },
+                    {
+                        title: "The strange combination",
+                        body: `Someone combines ${seedText.toLowerCase()} with an unrelated field. The result solves a problem nobody was trying to solve, creating a new path with unexpected trade-offs.`,
+                        action: "Discover the hybrid"
+                    },
+                    {
+                        title: "The hidden cost",
+                        body: `This reality adopts ${seedText.toLowerCase()} everywhere. The benefits spread quickly, but a subtle cost appears later. A new generation starts searching for a way to restore what was lost.`,
+                        action: "Investigate the cost"
+                    },
+                    {
+                        title: "The forgotten branch",
+                        body: `A small group chooses a different path after ${seedText.toLowerCase()}. Their experiment stays obscure for years, until its unusual rules become useful in a completely different situation.`,
+                        action: "Enter the forgotten branch"
+                    },
+                    {
+                        title: "The rule changes",
+                        body: `In this reality, ${seedText.toLowerCase()} changes the rule everyone thought was permanent. New possibilities appear, but the definition of success changes with them.`,
+                        action: "Rewrite the rule"
+                    }
+                ];
+
+                const shuffled = templates.map((t, i) => ({ t, order: rand(), i }))
+                    .sort((a, b) => a.order - b.order);
+                return shuffled.slice(0, 3).map(x => x.t);
+            }
+
+            function createNode(title, description, parentId = null, opts = {}) {
+                const id = nextId++;
+                const parent = nodes.find(n => n.id === parentId);
+                const level = parent ? parent.level + 1 : 0;
+                const angle = id * 2.399963;
+                const radius = 50 + level * 50;
+                const node = {
+                    id, title: cleanTitle(title), description,
+                    parentId, level,
+                    x: opts.x ?? (graphW / 2 + Math.cos(angle) * radius),
+                    y: opts.y ?? (graphH / 2 + Math.sin(angle) * radius),
+                    outcomes: opts.outcomes || [],
+                    source: opts.source || "seed",
+                    createdAt: new Date().toISOString()
+                };
+                nodes.push(node);
+                return node;
+            }
+
+            function getSelected() {
+                return nodes.find(n => n.id === selectedId) || nodes[0];
+            }
+
+            function startExperiment(seedText) {
+                seedText = seedText.trim();
+                if (!seedText) {
+                    showToast("Pehle ek idea likh.");
+                    $("seed").focus();
+                    return;
+                }
+                if (seedText.length > 180) seedText = seedText.slice(0, 180);
+
+                nodes = [];
+                nextId = 1;
+                journal = [];
+                viewOffset = { x: 0, y: 0 };
+                const origin = createNode("The Origin", `Starting idea: ${seedText}`, null, { x: graphW / 2, y: graphH / 2 });
+                origin.seed = seedText;
+                origin.outcomes = makeOutcomes(seedText, origin.id);
+                selectedId = origin.id;
+                addJournal("A new possibility field was initialized", seedText);
+                addJournal("Three alternate futures calculated", "Origin / NODE 001");
+                renderAll();
+                showToast("Possibility field generated.");
+            }
+
+            function generateBranches() {
+                const parent = getSelected();
+                if (!parent) return;
+                const base = parent.seed || parent.title;
+                const outcomeList = parent.outcomes.length ? parent.outcomes : makeOutcomes(base, parent.id);
+                const existingChildren = nodes.filter(n => n.parentId === parent.id);
+                if (existingChildren.length >= 3) {
+                    showToast("Is branch ke 3 outcomes already explore ho chuke hain.");
+                    return;
+                }
+                const remaining = outcomeList.filter((o, i) =>
+                    !existingChildren.some(n => n.outcomeIndex === i)
+                );
+                if (!remaining.length) {
+                    showToast("No unexplored outcomes left in this branch.");
+                    return;
+                }
+                const toAdd = remaining.slice(0, Math.min(3 - existingChildren.length, remaining.length));
+                toAdd.forEach((outcome, index) => {
+                    const originalIndex = outcomeList.indexOf(outcome);
+                    const child = createNode(outcome.title, outcome.body, parent.id, {
+                        source: "branch",
+                        outcomes: makeOutcomes(outcome.title + " — " + base, nextId)
+                    });
+                    child.seed = outcome.title + " — " + base;
+                    child.outcomeIndex = originalIndex;
+                    child.action = outcome.action;
+                });
+                parent.outcomes = outcomeList;
+                addJournal("Alternate futures discovered", `${parent.title} / +${toAdd.length} branches`);
+                renderAll();
+                showToast(`${toAdd.length} alternate futures discovered.`);
+            }
+
+            function enterOutcome(index) {
+                const parent = getSelected();
+                if (!parent) return;
+                const outcome = parent.outcomes[index];
+                if (!outcome) return;
+                const existing = nodes.find(n => n.parentId === parent.id && n.outcomeIndex === index);
+                if (existing) {
+                    selectedId = existing.id;
+                    renderAll();
+                    showToast("Returned to discovered reality.");
+                    return;
+                }
+
+                const child = createNode(outcome.title, outcome.body, parent.id, {
+                    source: "branch",
+                    outcomes: makeOutcomes(outcome.title + " / " + (parent.seed || parent.title), nextId)
+                });
+                child.seed = outcome.title + " / " + (parent.seed || parent.title);
+                child.outcomeIndex = index;
+                child.action = outcome.action;
+                selectedId = child.id;
+                addJournal("Entered a new branch", child.title);
+                renderAll();
+                showToast("Reality branch entered.");
+            }
+
+            function fuseIdeas() {
+                const a = $("ideaA").value.trim();
+                const b = $("ideaB").value.trim();
+                if (!a || !b) {
+                    showToast("Dono concepts likh.");
+                    return;
+                }
+                const fusionTitles = [
+                    `${a} × ${b}`,
+                    `The ${a}–${b} protocol`,
+                    `A world built from ${a} and ${b}`
+                ];
+                const title = fusionTitles[hashString(a + b) % fusionTitles.length];
+                const description = `Hybrid concept: ${a} and ${b} are treated as parts of one experimental system. The first changes how the second works; the second introduces constraints the first never had to handle. Explore what happens when both must coexist, and which new behaviour emerges from their interaction.`;
+                const parent = getSelected();
+                const child = createNode(title, description, parent.id, {
+                    source: "fusion",
+                    outcomes: makeOutcomes(title + " | " + description, nextId)
+                });
+                child.seed = title + ": " + description;
+                child.fusion = [a, b];
+                selectedId = child.id;
+                addJournal("Two concepts fused", `${a} + ${b}`);
+                addJournal("A hybrid possibility created", title);
+                renderAll();
+                showToast("Hybrid reality created.");
+            }
+
+            function resetWorld() {
+                nodes = [];
+                nextId = 1;
+                selectedId = 0;
+                journal = [];
+                viewOffset = { x: 0, y: 0 };
+                const origin = createNode("The Origin", "Create a seed idea to begin.", null, { x: graphW / 2, y: graphH / 2 });
+                selectedId = origin.id;
+                addJournal("Experiment initialized", "Waiting for a seed idea.");
+                renderAll();
+                showToast("Experiment reset.");
+            }
+
+            function renderAll() {
+                const current = getSelected();
+                $("currentTitle").textContent = current.title;
+                $("currentId").textContent = "NODE / " + String(current.id).padStart(3, "0");
+                $("worldCount").textContent = nodes.length;
+                $("branchCount").textContent = nodes.filter(n => n.parentId !== null).length;
+                $("depthCount").textContent = current.level;
+                $("mapLabel").textContent = `${nodes.length} NODES / ${nodes.filter(n => n.parentId !== null).length} LINKS`;
+                $("nodeLabel").textContent = "NODE " + String(current.id).padStart(3, "0");
+                $("labTitle").textContent = current.title;
+                $("labDesc").textContent = current.description;
+                renderNodeList();
+                renderOutcomes();
+                renderJournal();
+                drawGraph();
+            }
+
+            function renderNodeList() {
+                const list = $("nodeList");
+                list.replaceChildren();
+                [...nodes].sort((a, b) => a.id - b.id).forEach(n => {
+                    const button = document.createElement("button");
+                    button.className = "node" + (n.id === selectedId ? " selected" : "");
+                    const num = document.createElement("span");
+                    num.className = "node-num";
+                    num.textContent = "NODE / " + String(n.id).padStart(3, "0") + " · DEPTH " + n.level;
+                    const strong = document.createElement("strong");
+                    strong.textContent = n.title;
+                    const p = document.createElement("p");
+                    p.textContent = n.description;
+                    const prob = document.createElement("span");
+                    prob.className = "prob";
+                    prob.textContent = n.source === "fusion" ? "✳ HYBRID REALITY" : n.parentId === null ? "◉ ORIGIN" : "↳ ALTERNATE TIMELINE";
+                    button.append(num, strong, p, prob);
+                    button.addEventListener("click", () => { selectedId = n.id; renderAll(); });
+                    list.appendChild(button);
+                });
+            }
+
+            function renderOutcomes() {
+                const container = $("outcomes");
+                container.replaceChildren();
+                const current = getSelected();
+                if (!current.outcomes.length) {
+                    const empty = document.createElement("div");
+                    empty.className = "empty";
+                    empty.textContent = "Is reality se alternate futures generate karne ke liye button dabao.";
+                    const button = document.createElement("button");
+                    button.className = "primary";
+                    button.style.marginTop = "12px";
+                    button.textContent = "GENERATE 3 POSSIBILITIES ↗";
+                    button.addEventListener("click", () => {
+                        current.outcomes = makeOutcomes(current.seed || current.title, current.id);
+                        addJournal("Possibilities generated", current.title);
+                        renderAll();
+                    });
+                    container.append(empty, button);
+                    return;
+                }
+
+                current.outcomes.forEach((outcome, index) => {
+                    const existing = nodes.find(n => n.parentId === current.id && n.outcomeIndex === index);
+                    const card = document.createElement("article");
+                    card.className = "outcome";
+                    const h = document.createElement("h3");
+                    h.textContent = String(index + 1).padStart(2, "0") + " / " + outcome.title;
+                    const p = document.createElement("p");
+                    p.textContent = outcome.body;
+                    const button = document.createElement("button");
+                    button.className = existing ? "" : "primary";
+                    button.style.marginTop = "12px";
+                    button.textContent = existing ? "REVISIT THIS REALITY ↗" : outcome.action + " ↗";
+                    button.addEventListener("click", () => enterOutcome(index));
+                    card.append(h, p, button);
+                    container.appendChild(card);
+                });
+            }
+
+            function renderJournal() {
+                const container = $("journal");
+                container.replaceChildren();
+                if (!journal.length) {
+                    const p = document.createElement("div");
+                    p.className = "empty";
+                    p.textContent = "No events yet.";
+                    container.appendChild(p);
+                    return;
+                }
+                journal.forEach(item => {
+                    const div = document.createElement("div");
+                    div.className = "log-item";
+                    const strong = document.createElement("strong");
+                    strong.textContent = item.title;
+                    const span = document.createElement("span");
+                    span.textContent = item.detail;
+                    div.append(strong, span);
+                    container.appendChild(div);
+                });
+            }
+
+            function resizeCanvas() {
+                const rect = canvas.getBoundingClientRect();
+                dpr = Math.min(window.devicePixelRatio || 1, 2);
+                graphW = rect.width; graphH = rect.height;
+                canvas.width = Math.round(graphW * dpr);
+                canvas.height = Math.round(graphH * dpr);
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                if (nodes.length === 1) { nodes[0].x = graphW / 2; nodes[0].y = graphH / 2; }
+                drawGraph();
+            }
+
+            function nodeRadius(n) {
+                return n.id === selectedId ? 17 : 12;
+            }
+
+            function drawGraph() {
+                if (!ctx || !graphW || !graphH) return;
+                ctx.clearRect(0, 0, graphW, graphH);
+                ctx.fillStyle = "#090c12";
+                ctx.fillRect(0, 0, graphW, graphH);
+
+                ctx.strokeStyle = "#1a2230";
+                ctx.lineWidth = .6;
+                for (let x = 0; x < graphW; x += 25) {
+                    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, graphH); ctx.stroke();
+                }
+                for (let y = 0; y < graphH; y += 25) {
+                    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(graphW, y); ctx.stroke();
+                }
+
+                const selected = nodes.find(n => n.id === selectedId);
+                nodes.forEach(n => {
+                    if (n.parentId === null) return;
+                    const p = nodes.find(x => x.id === n.parentId);
+                    if (!p) return;
+                    ctx.beginPath();
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(n.x, n.y);
+                    ctx.strokeStyle = (n.id === selectedId || p.id === selectedId) ? "#75f5dc88" : "#3a4355";
+                    ctx.lineWidth = (n.id === selectedId || p.id === selectedId) ? 1.8 : 1;
+                    ctx.stroke();
+                    const mx = (p.x + n.x) / 2, my = (p.y + n.y) / 2;
+                    ctx.beginPath(); ctx.arc(mx, my, 2, 0, Math.PI * 2);
+                    ctx.fillStyle = "#ad9aff"; ctx.fill();
+                });
+
+                nodes.forEach(n => {
+                    const r = nodeRadius(n);
+                    const color = n.id === selectedId ? "#75f5dc" : n.source === "fusion" ? "#ffbd80" : "#ad9aff";
+                    if (n.id === selectedId) {
+                        ctx.beginPath(); ctx.arc(n.x, n.y, r + 8, 0, Math.PI * 2);
+                        ctx.strokeStyle = "#75f5dc55"; ctx.lineWidth = 1; ctx.stroke();
+                    }
+                    ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
+                    ctx.fillStyle = n.id === selectedId ? "#173b36" : "#181b2b";
+                    ctx.fill();
+                    ctx.strokeStyle = color; ctx.lineWidth = n.id === selectedId ? 2 : 1.2; ctx.stroke();
+
+                    ctx.fillStyle = color; ctx.font = "10px 'DM Mono',monospace";
+                    ctx.textAlign = "center"; ctx.textBaseline = "top";
+                    const title = n.title.length > 19 ? n.title.slice(0, 17) + "…" : n.title;
+                    ctx.fillText(title, n.x, n.y + r + 6);
+                    ctx.fillStyle = "#78869c"; ctx.font = "8px 'DM Mono',monospace";
+                    ctx.fillText("N" + String(n.id).padStart(3, "0"), n.x, n.y - r - 14);
+                });
+            }
+
+            function pointerPos(e) {
+                const rect = canvas.getBoundingClientRect();
+                return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+            }
+
+            canvas.addEventListener("pointerdown", e => {
+                const pos = pointerPos(e);
+                const found = [...nodes].reverse().find(n => Math.hypot(n.x - pos.x, n.y - pos.y) < nodeRadius(n) + 7);
+                dragStart = pos;
+                lastPointer = pos;
+                if (found) {
+                    dragNode = found;
+                    selectedId = found.id;
+                    dragging = true;
+                    canvas.setPointerCapture(e.pointerId);
+                    renderAll();
+                } else {
+                    dragNode = null;
+                }
+            });
+            canvas.addEventListener("pointermove", e => {
+                if (!dragging || !dragNode) return;
+                const pos = pointerPos(e);
+                dragNode.x = Math.max(20, Math.min(graphW - 20, pos.x));
+                dragNode.y = Math.max(20, Math.min(graphH - 20, pos.y));
+                lastPointer = pos;
+                drawGraph();
+            });
+            canvas.addEventListener("pointerup", () => {
+                dragging = false;
+                dragNode = null;
+                dragStart = null;
+            });
+            canvas.addEventListener("pointercancel", () => {
+                dragging = false;
+                dragNode = null;
+            });
+            canvas.addEventListener("dblclick", e => {
+                const pos = pointerPos(e);
+                const found = [...nodes].reverse().find(n => Math.hypot(n.x - pos.x, n.y - pos.y) < nodeRadius(n) + 7);
+                if (found) { selectedId = found.id; renderAll(); }
+            });
+
+            $("create").addEventListener("click", () => startExperiment($("seed").value));
+            $("seed").addEventListener("keydown", e => {
+                if ((e.ctrlKey || e.metaKey) && e.key === "Enter") startExperiment($("seed").value);
+            });
+            document.querySelectorAll("[data-seed]").forEach(chip => {
+                chip.addEventListener("click", () => {
+                    $("seed").value = chip.dataset.seed;
+                    $("seed").focus();
+                });
+            });
+            $("combine").addEventListener("click", fuseIdeas);
+            $("reset").addEventListener("click", resetWorld);
+
+            $("export").addEventListener("click", () => {
+                const data = {
+                    app: "THE UNBORN INTERNET — Possibility Engine",
+                    version: "1.0",
+                    exportedAt: new Date().toISOString(),
+                    selectedNode: selectedId,
+                    nodes,
+                    journal
+                };
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url; a.download = "unborn-internet-world.json";
+                document.body.appendChild(a); a.click(); a.remove();
+                URL.revokeObjectURL(url);
+                showToast("World exported as JSON.");
+            });
+
+            window.addEventListener("resize", resizeCanvas);
+
+            const origin = createNode("The Origin", "Create a seed idea to begin.", null, { x: 0, y: 0 });
+            selectedId = origin.id;
+            resizeCanvas();
+            renderAll();
+        })();
+    </script>
+</body>
+
+</html>
